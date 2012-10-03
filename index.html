@@ -36,7 +36,7 @@ var fooFromLS = JSON.parse(localStorage.getItem('foo'));
 console.log(fooFromLS);*/
 
 	}else{
-		console.error('sosni huitsa lolka');
+		console.error('asdsada');
 	}
 </script>
 <body>
@@ -92,32 +92,43 @@ Shtoto eshe 2
 			var text = $('textarea').val();
 			var arr=text.split('#');
 			var countDays=0;
+			var myArray=new Array(1);
+
 			for (var i = 0; i <= arr.length - 1; i++) {
+				myArray[i]=new Array();
 				//alert(i)
 				var arr2=arr[i].split('\n');
 				var countStr=0;
+				var countLection=0;
+				myArray[i][countLection]=new Object();
 				for (var j = 0; j <= arr2.length - 1; j++) {
-
 					if(trim(arr2[j])!='') {
 
 						if(countStr==0){
-							console.log('date = ' + trim(arr2[j]));
-
+							myArray[i][countLection].date=trim(arr2[j]);
 						}
 						if(countStr==1){
-							console.log('time = ' + trim(arr2[j]));
+							myArray[i][countLection].time=trim(arr2[j]);
 						}
 						if(countStr==2){
-							console.log('theme = ' + trim(arr2[j]));
+							myArray[i][countLection].time=trim(arr2[j]);
 						}
 						if(countStr==3){
-							console.log('lector = ' + trim(arr2[j]));
+							myArray[i][countLection].lector=trim(arr2[j]);
 						}
 						if(countStr>3){
-							if(trim(arr2[j]).indexOf('?:')+1)
-								console.log('idea = ' + trim(arr2[j]));
-							else
-								console.log('lection link = ' + trim(arr2[j]));
+							if(trim(arr2[j]).indexOf('?:')+1){
+									if(myArray[i][countLection].idea==undefined)
+										myArray[i][countLection].idea=new Array();
+									myArray[i][countLection].idea[j]=trim(arr2[j]);
+								}
+							else{
+
+								myArray[i][countLection].link=trim(arr2[j]);
+								countLection++;
+								countStr=0;
+								myArray[i][countLection]=new Object();
+							}
 						}
 						
 						
@@ -129,6 +140,10 @@ Shtoto eshe 2
 					
 				};	
 			};
+			
+			console.log(myArray);
+			
+
 			
 		});
 	})
