@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+	<title>SHRI</title>
+</head>
+<script type="text/javascript" src="jq.js"></script>
+<script type="text/javascript">
+function trim (str) { return str.replace(/^\s+|\s+$/g, ""); }
+function isLocalStorageAvailable() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
+	if(isLocalStorageAvailable){
+		var foo = [
+		{
+			name:'Методология БЭМ',
+			time:'22:00',lector:1,
+			html:'<b>123</b>'
+		},
+        {
+        	name:'HTTP протокол',
+			time:'16:00',
+			lector:
+			{
+				name:'Ivan Pupkin',
+				whois:'Frontend developer',
+				links:['vk.com','odnoklassniki.ru']
+			},
+			html:'<b>1223</b>'		
+        }];
+/*localStorage.setItem('foo', JSON.stringify(foo));
+var fooFromLS = JSON.parse(localStorage.getItem('foo'));
+console.log(fooFromLS);*/
+
+	}else{
+		console.error('sosni huitsa lolka');
+	}
+</script>
+<body>
+<textarea class="json-encoder" rows="40" cols="100">
+#
+1.10.2012
+12:00
+Это первая тема
+Иванов Иван, Программист (vk.com, odnoklassniki.ru)
+        ?: Структуры данных?                
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        http://clubs.ya.ru/4611686018427468886/replies.xml?item_no=493
+
+13:00		
+Shtoto eshe
+Петров Петр, Программист (ya.ru)
+        ?: Структуры данных?                
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        http://clubs.ya.ru/4611686018427468886/replies.xml?item_no=493
+
+#
+2.10.2012
+12:00
+Это тертья тема
+Иванов Иван, Программист (vk.com, odnoklassniki.ru)
+        ?: Структуры данных?                
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        http://clubs.ya.ru/4611686018427468886/replies.xml?item_no=493
+
+13:00		
+Shtoto eshe 2
+Петров Петр, Программист (ya.ru)
+        ?: Структуры данных?                
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        ?: Тестирование
+        http://clubs.ya.ru/4611686018427468886/replies.xml?item_no=493
+</textarea>
+<button id="btn">Import</button>
+<script type="text/javascript">
+	$(function(){
+		$('button').click(function(){
+			var text = $('textarea').val();
+			var arr=text.split('#');
+			var countDays=0;
+			for (var i = 0; i <= arr.length - 1; i++) {
+				//alert(i)
+				var arr2=arr[i].split('\n');
+				var countStr=0;
+				for (var j = 0; j <= arr2.length - 1; j++) {
+
+					if(trim(arr2[j])!='') {
+
+						if(countStr==0){
+							console.log('date = ' + trim(arr2[j]));
+
+						}
+						if(countStr==1){
+							console.log('time = ' + trim(arr2[j]));
+						}
+						if(countStr==2){
+							console.log('theme = ' + trim(arr2[j]));
+						}
+						if(countStr==3){
+							console.log('lector = ' + trim(arr2[j]));
+						}
+						if(countStr>3){
+							if(trim(arr2[j]).indexOf('?:')+1)
+								console.log('idea = ' + trim(arr2[j]));
+							else
+								console.log('lection link = ' + trim(arr2[j]));
+						}
+						
+						
+						
+						countStr++;
+
+					}
+						
+					
+				};	
+			};
+			
+		});
+	})
+</script>
+</body>
+</html>
