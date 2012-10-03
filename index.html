@@ -100,8 +100,10 @@ Shtoto eshe 2
 				var arr2=arr[i].split('\n');
 				var countStr=0;
 				var countLection=0;
+				var countIdea=0;
 				myArray[i][countLection]=new Object();
 				for (var j = 0; j <= arr2.length - 1; j++) {
+
 					if(trim(arr2[j])!='') {
 
 						if(countStr==0){
@@ -111,7 +113,7 @@ Shtoto eshe 2
 							myArray[i][countLection].time=trim(arr2[j]);
 						}
 						if(countStr==2){
-							myArray[i][countLection].time=trim(arr2[j]);
+							myArray[i][countLection].theme=trim(arr2[j]);
 						}
 						if(countStr==3){
 							myArray[i][countLection].lector=trim(arr2[j]);
@@ -120,13 +122,18 @@ Shtoto eshe 2
 							if(trim(arr2[j]).indexOf('?:')+1){
 									if(myArray[i][countLection].idea==undefined)
 										myArray[i][countLection].idea=new Array();
-									myArray[i][countLection].idea[j]=trim(arr2[j]);
+									myArray[i][countLection].idea[countIdea]=trim(arr2[j]);
+									countIdea++;
 								}
 							else{
 
 								myArray[i][countLection].link=trim(arr2[j]);
+								if(myArray[i][countLection].date==undefined)
+									myArray[i][countLection].date=myArray[i][countLection-1].date;
 								countLection++;
+								countIdea=0;
 								countStr=0;
+
 								myArray[i][countLection]=new Object();
 							}
 						}
