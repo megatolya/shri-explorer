@@ -5,7 +5,9 @@
 </head>
 <script type="text/javascript" src="jq.js"></script>
 <script type="text/javascript">
-function trim (str) { return str.replace(/^\s+|\s+$/g, ""); }
+function trim (str) { 
+	return str.replace(/^\s+|\s+$/g, ""); 
+}
 function isLocalStorageAvailable() {
     try {
         return 'localStorage' in window && window['localStorage'] !== null;
@@ -13,35 +15,13 @@ function isLocalStorageAvailable() {
         return false;
     }
 }
-	if(isLocalStorageAvailable){
-		var foo = [
-		{
-			name:'Методология БЭМ',
-			time:'22:00',lector:1,
-			html:'<b>123</b>'
-		},
-        {
-        	name:'HTTP протокол',
-			time:'16:00',
-			lector:
-			{
-				name:'Ivan Pupkin',
-				whois:'Frontend developer',
-				links:['vk.com','odnoklassniki.ru']
-			},
-			html:'<b>1223</b>'		
-        }];
+	
 /*localStorage.setItem('foo', JSON.stringify(foo));
 var fooFromLS = JSON.parse(localStorage.getItem('foo'));
 console.log(fooFromLS);*/
-
-	}else{
-		console.error('asdsada');
-	}
 </script>
 <body>
-<textarea class="json-encoder" rows="40" cols="100">
-#
+<textarea class="json-import" rows="40" cols="100">
 1.10.2012
 12:00
 Это первая тема
@@ -85,11 +65,16 @@ Shtoto eshe 2
         ?: Тестирование
         http://clubs.ya.ru/4611686018427468886/replies.xml?item_no=493
 </textarea>
-<button id="btn">Import</button>
+<textarea class="json-export" rows="40" cols="10">
+</textarea>
+<br>
+<button id="import">Import</button>
+<button id="export">Export</button>
+
 <script type="text/javascript">
 	$(function(){
-		$('button').click(function(){
-			var text = $('textarea').val();
+		$('#import').click(function(){
+			var text = $('.json-import').val();
 			var arr=text.split('#');
 			var countDays=0;
 			var myArray=new Array(1);
@@ -147,13 +132,33 @@ Shtoto eshe 2
 					
 				};	
 			};
-			
-			
-			console.log(myArray);
-			console.log(myArray);
 
-			
+			console.log(myArray);
+			for (var i = 0; i <= myArray.length - 1; i++) {
+				for (var j = 0; j <= myArray[i].length - 1; j++) {
+					$('body').append('<br>' + myArray[i][j].date);
+				};
+			};
+			var myData=new Object();
+			myData.data=myArray;
+			myData.version=0.1;
+			localStorage.setItem('shri', JSON.stringify(myData));
 		});
+		$('#export').click(function(){
+			console.log('export');
+			var myData=localStorage.getItem('shri');
+			myData=$.parseJSON(myData);
+			console.log(myData.data.length);
+			var res=new String();
+			for (var i = 0; i <= myData.data.length - 1; i++) {
+				if(i!=0)res+= '#\n';
+				for (var j = 0; j <= myData.data[i].length - 1; j++) {
+					res+=myData.data[i][j].date+ '\n';
+				};
+			
+			};
+			$('.json-export').val(res);
+		})
 	})
 </script>
 </body>
