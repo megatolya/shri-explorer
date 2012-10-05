@@ -34,7 +34,7 @@ interface=new interface();
 $(function(){
 	interface.dialogPos();
 	$('.b-toolbar__link_name_import').click(function(){
-		var html = '<textarea></textarea>';
+		var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
 		interface.openDialog('Импорт',html);	
 	});
 
@@ -43,7 +43,11 @@ $(function(){
 	});
 	$('.b-dialog-win__close-btn').click(function(){
 		interface.closeDialog();
-	})
+	});
+	$('.b-toolbar__link_name_export').click(function(){
+		var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea><button class="b-button b-export-btn">Экспорт</button> <button class="b-button b-export-copy">Скопировать в буфер</button>';
+		interface.openDialog('Экспорт',html);
+	});
 });
 $(window).resize(function(){
 	interface.dialogPos();
@@ -145,7 +149,7 @@ $(window).resize(function(){
 	<div class="b-toolbar">
 		<a class="b-toolbar__link" href="#">Сегодня</a>
 		<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
-		<a class="b-toolbar__link" href="#">Экспорт</a>
+		<a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
 		<a class="b-toolbar__link" href="#">Справка</a>
 	</div>
 	<div class="b-bg-shadow"></div>
