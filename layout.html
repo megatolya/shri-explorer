@@ -3,73 +3,33 @@
 <head>
 	<title>layout</title>
 	<meta charset="utf-8">
-	<style type="text/css">
-	*{
-		margin: 0;
-		padding: 0;
-		font-family: sans-serif;
-	}
-	body{
-		background: url('bg1.png');
-	}
-	.b-header{
-		background: url('bg3.png');
-	}
-	.b-header__title{
-		color: white;
-		padding: 24px 0;
-		text-align: center;
-		font-weight: normal;
-	}
-	.b-schedule{
-		width: 800px;
-		margin: 0 auto;
-	}
-	.b-day {
-		 background: url('bg2.png');
-		margin: 20px;
-		padding: 12px 10px;
-	  -moz-box-shadow: 0px 0px 30px 2px black;
-	  -webkit-box-shadow: 0px 0px 30px 2px black;
-	  box-shadow: 0px 0px 30px 2px black;
-	   -moz-border-radius: 4px;
-  -webkit-border-radius: 4px; 
-  border-radius: 4px; 
-	}
-	.b-day__date{
-		display: -moz-inline-stack;
-        display: inline-block;
-		zoom: 1;
-		*display: inline;
-		border-bottom: 1px solid black;
-		font-style: italic;
-		font-size: 20px;
-	}
-	.b-lesson{
-		margin: 10px 0;
-	}
-	.b-lesson__time{
-		border: none;
-        display: -moz-inline-stack;
-        display: inline-block;
-        vertical-align: top;
-        margin: 0 20px;
-        zoom: 1;
-        *display: inline;
-	}
-	.b-lesson__name{
-		border: none;
-        display: -moz-inline-stack;
-        display: inline-block;
-        vertical-align: top;
-        margin: 0 20px;
-        zoom: 1;
-        *display: inline;
-	}
-	
-	</style>
+	<link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
+	<script src="assets/js/jq.js"></script>
+<script>
+function interface(){
+	this.dialogVisible=true;
+}
+interface.prototype.openDialog = function(header,html) {
+	alert();
+	this.dialogVisible=true;
+	$('.b-dialog-win__content').html(html);
+	$('.b-bg-shadow').show();
+	$('.b-dialog-win').show();
+}
+interface.prototype.dialogPos = function() {
+	
+}
+interface=new interface();
+$(function(){
+
+	$('.b-toolbar__link_name_import').click(function(){
+		interface.openDialog('Импорт','123');	
+	});
+	
+});
+</script>
 	<div class="b-header">
 		<h1 class="b-header__title">Школа Разработки Интерфейсов</h1>
 	</div>
@@ -103,9 +63,77 @@
 			</div>
 			<a href="#" class="b-lesson__link">Подробнее</a>
 		</div>
+		<div class="b-day">
+			<div class="b-day__date">
+				13 сентября
+			</div>	
+		<div class="b-lesson">
+			<div class="b-lesson__time">13:00</div>
+			<div class="b-lesson__name">Методология БЭМ</div>
+		</div>
+		<div class="b-lesson">
+			<div class="b-lesson__time">14:00</div>
+			<div class="b-lesson__name">Тестирование</div>
+		</div>
+			<a href="#" class="b-lesson__link">Подробнее</a>
+		</div>
+		<div class="b-day">
+			<div class="b-day__date">
+				14 сентября
+			</div>	
+			<div class="b-lesson">
+			<div class="b-lesson__time">13:00</div>
+			<div class="b-lesson__name">Методология БЭМ</div>
+			</div>
+			<div class="b-lesson">
+				<div class="b-lesson__time">13:00</div>
+				<div class="b-lesson__name">Методология БЭМ</div>
+			</div>
+			<a href="#" class="b-lesson__link">Подробнее</a>
+		</div>
+		<div class="b-day">
+			<div class="b-day__date">
+				13 сентября
+			</div>	
+		<div class="b-lesson">
+			<div class="b-lesson__time">13:00</div>
+			<div class="b-lesson__name">Методология БЭМ</div>
+		</div>
+		<div class="b-lesson">
+			<div class="b-lesson__time">14:00</div>
+			<div class="b-lesson__name">Тестирование</div>
+		</div>
+			<a href="#" class="b-lesson__link">Подробнее</a>
+		</div>
+		<div class="b-day">
+			<div class="b-day__date">
+				14 сентября
+			</div>	
+			<div class="b-lesson">
+			<div class="b-lesson__time">13:00</div>
+			<div class="b-lesson__name">Методология БЭМ</div>
+			</div>
+			<div class="b-lesson">
+				<div class="b-lesson__time">13:00</div>
+				<div class="b-lesson__name">Методология БЭМ</div>
+			</div>
+			<a href="#" class="b-lesson__link">Подробнее</a>
+		</div>
 		
 		
 		
+	</div>
+	<div class="b-toolbar">
+		<a class="b-toolbar__link" href="#">Сегодня</a>
+		<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
+		<a class="b-toolbar__link" href="#">Экспорт</a>
+		<a class="b-toolbar__link" href="#">Справка</a>
+	</div>
+	<div class="b-bg-shadow"></div>
+	<div class="b-dialog-win">
+		<a class="b-dialog-win__close-btn" href="#"></a>
+		<h1 class="b-dialog-win__header"></h1>
+		<div class="b-dialog-win__content"></div>
 	</div>
 		
 </body>
