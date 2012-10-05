@@ -13,7 +13,7 @@ function shri(){
 	this.version='alpha';
 	this.schedule=undefined;
 }
-
+//из формата shri в формат json
 shri.prototype.import = function(text) {
 	console.log('import');
 	var arr=text.split('#');
@@ -68,7 +68,10 @@ shri.prototype.import = function(text) {
 	}
 	
 	this.schedule=schedule;
+
 	localStorage.setItem('shri', JSON.stringify(schedule));
+	localStorage.setItem('test', 'JSON.stringify(schedule)');
+	console.log(JSON.stringify(schedule))
 }
 
 shri.prototype.build=function(){
@@ -80,7 +83,7 @@ shri.prototype.build=function(){
 			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
 			'</div><div class="b-lesson__name">'+schedule[i][j].theme+'</div></div>';
 		}
-		html+='</div>';
+		html+='<a href="#" class="b-lesson__link">Подробнее</a></div>';
 	}
 	$('.b-schedule').html(html);
 	console.log(schedule);
@@ -89,10 +92,11 @@ shri.prototype.build=function(){
 				
 shri.prototype.ini = function() {
 	var schedule = localStorage.getItem('shri');
-	if(schedule){
-		this.import(schedule);
+	if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
+		this.schedule=$.parseJSON(schedule);
+		this.build(schedule);
 	}else{
-		alert('no');
+		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать!</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
 	}
 };		
 			
