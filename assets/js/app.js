@@ -69,7 +69,7 @@ shri.prototype.import = function(text) {
 	
 	this.schedule=schedule;
 	localStorage.setItem('shri', JSON.stringify(schedule));
-};
+}
 
 shri.prototype.build=function(){
 	var schedule=this.schedule;
@@ -87,7 +87,14 @@ shri.prototype.build=function(){
 }
 
 				
-		
+shri.prototype.ini = function() {
+	var schedule = localStorage.getItem('shri');
+	if(schedule){
+		this.import(schedule);
+	}else{
+		alert('no');
+	}
+};		
 			
 			
 shri.prototype.export = function(selector) {
@@ -125,12 +132,13 @@ interface.prototype.dialogPos = function() {
 }
 interface.prototype.closeDialog = function() {
 	$('body').css('overflow','auto');
-		$('.b-bg-shadow').hide();
+	$('.b-bg-shadow').hide();
 	$('.b-dialog-win').hide();
 	this.dialogVisible=false;
 }
 interface=new interface();
 $(function(){
+	shri.ini();
 	interface.dialogPos();
 	$('.b-toolbar__link_name_import').click(function(){
 		var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
