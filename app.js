@@ -104,7 +104,6 @@ $(function(){
 		});
 
 		$('#export').click(function(){
-			
 			$('.json-export').val(Shri.export());
 		});
 });
