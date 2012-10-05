@@ -9,12 +9,12 @@ function isLocalStorageAvailable() {
     }
 }
 
-function Shri(){
+function shri(){
 	this.version='alpha';
 	this.schedule=undefined;
 }
 
-Shri.prototype.import = function(text) {
+shri.prototype.import = function(text) {
 	console.log('import');
 	var arr=text.split('#');
 	var countDays=0;
@@ -71,14 +71,16 @@ Shri.prototype.import = function(text) {
 	localStorage.setItem('shri', JSON.stringify(schedule));
 };
 
-Shri.prototype.build=function(schedule){
+shri.prototype.build=function(){
+	var schedule=this.schedule;
+	var html = new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
 			$('body').append('<br>' + schedule[i][j].date);
 		}
 	}
 }
-Shri.prototype.export = function(selector) {
+shri.prototype.export = function(selector) {
 	console.log('export');
 	var schedule=localStorage.getItem('shri');
 	schedule=$.parseJSON(schedule);
@@ -94,16 +96,57 @@ Shri.prototype.export = function(selector) {
 /*localStorage.setItem('foo', JSON.stringify(foo));
 var fooFromLS = JSON.parse(localStorage.getItem('foo'));
 console.log(fooFromLS);*/
-Shri= new Shri();
+shri= new shri();
+function interface(){
+	this.dialogVisible=false;
+}
+interface.prototype.openDialog = function(header,html) {
+	this.dialogVisible=true;
+	$('.b-dialog-win__content').html(html);
+	$('.b-dialog-win__header').html(header);
+	$('.b-bg-shadow').show();
+	$('.b-dialog-win').show();
+	$('body').css('overflow','hidden');
+}
+interface.prototype.dialogPos = function() {
+	var winWidth = $(window).width();
+	var dialogWidth = $('.b-dialog-win').width();
+	$('.b-dialog-win').css('left',(winWidth-dialogWidth)/2)
+}
+interface.prototype.closeDialog = function() {
+	$('body').css('overflow','auto');
+		$('.b-bg-shadow').hide();
+	$('.b-dialog-win').hide();
+	this.dialogVisible=false;
+}
+interface=new interface();
 $(function(){
+	interface.dialogPos();
+	$('.b-toolbar__link_name_import').click(function(){
+		var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
+		interface.openDialog('Импорт',html);	
+	});
 
-		$('#import').click(function(){
-			var text = $('.json-import').val();
-			Shri.import(text);
-			Shri.build(Shri.schedule);
-		});
-
-		$('#export').click(function(){
-			$('.json-export').val(Shri.export());
-		});
+	$('.b-bg-shadow').click(function(){
+		interface.closeDialog();
+	});
+	$('.b-dialog-win__close-btn').click(function(){
+		interface.closeDialog();
+	});
+	$('.b-toolbar__link_name_export').click(function(){
+		var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea><button class="b-button b-export-copy">Скопировать в буфер</button>';
+		interface.openDialog('Экспорт',html);
+	});
+	$('.b-toolbar__link_name_manual').click(function(){
+		var html = '<p>Здесь будет справка</p>';
+		interface.openDialog('Справочная',html);
+	});
+	$('.b-import-btn').live('click',function(){
+		var text=$('.b-import-textarea').val();
+		shri.import(text);
+		shri.build();
+	});
+});
+$(window).resize(function(){
+	interface.dialogPos();
 });

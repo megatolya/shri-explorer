@@ -6,53 +6,7 @@
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
-	<script src="assets/js/jq.js"></script>
-<script>
-function interface(){
-	this.dialogVisible=false;
-}
-interface.prototype.openDialog = function(header,html) {
-	this.dialogVisible=true;
-	$('.b-dialog-win__content').html(html);
-	$('.b-dialog-win__header').html(header);
-	$('.b-bg-shadow').show();
-	$('.b-dialog-win').show();
-	$('body').css('overflow','hidden');
-}
-interface.prototype.dialogPos = function() {
-	var winWidth = $(window).width();
-	var dialogWidth = $('.b-dialog-win').width();
-	$('.b-dialog-win').css('left',(winWidth-dialogWidth)/2)
-}
-interface.prototype.closeDialog = function() {
-	$('body').css('overflow','auto');
-		$('.b-bg-shadow').hide();
-	$('.b-dialog-win').hide();
-	this.dialogVisible=false;
-}
-interface=new interface();
-$(function(){
-	interface.dialogPos();
-	$('.b-toolbar__link_name_import').click(function(){
-		var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
-		interface.openDialog('Импорт',html);	
-	});
-
-	$('.b-bg-shadow').click(function(){
-		interface.closeDialog();
-	});
-	$('.b-dialog-win__close-btn').click(function(){
-		interface.closeDialog();
-	});
-	$('.b-toolbar__link_name_export').click(function(){
-		var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea><button class="b-button b-export-btn">Экспорт</button> <button class="b-button b-export-copy">Скопировать в буфер</button>';
-		interface.openDialog('Экспорт',html);
-	});
-});
-$(window).resize(function(){
-	interface.dialogPos();
-});
-</script>
+	
 	<div class="b-header">
 		<h1 class="b-header__title">Школа Разработки Интерфейсов</h1>
 	</div>
@@ -150,7 +104,7 @@ $(window).resize(function(){
 		<a class="b-toolbar__link" href="#">Сегодня</a>
 		<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
 		<a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
-		<a class="b-toolbar__link" href="#">Справка</a>
+		<a class="b-toolbar__link b-toolbar__link_name_manual" href="#">Справка</a>
 	</div>
 	<div class="b-bg-shadow"></div>
 	<div class="b-dialog-win">
@@ -160,4 +114,6 @@ $(window).resize(function(){
 	</div>
 		
 </body>
+<script src="assets/js/jq.js"></script>
+<script src="assets/js/app.js"></script>
 </html>
