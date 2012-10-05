@@ -9,25 +9,44 @@
 	<script src="assets/js/jq.js"></script>
 <script>
 function interface(){
-	this.dialogVisible=true;
+	this.dialogVisible=false;
 }
 interface.prototype.openDialog = function(header,html) {
-	alert();
 	this.dialogVisible=true;
 	$('.b-dialog-win__content').html(html);
+	$('.b-dialog-win__header').html(header);
 	$('.b-bg-shadow').show();
 	$('.b-dialog-win').show();
+	$('body').css('overflow','hidden');
 }
 interface.prototype.dialogPos = function() {
-	
+	var winWidth = $(window).width();
+	var dialogWidth = $('.b-dialog-win').width();
+	$('.b-dialog-win').css('left',(winWidth-dialogWidth)/2)
+}
+interface.prototype.closeDialog = function() {
+	$('body').css('overflow','auto');
+		$('.b-bg-shadow').hide();
+	$('.b-dialog-win').hide();
+	this.dialogVisible=false;
 }
 interface=new interface();
 $(function(){
-
+	interface.dialogPos();
 	$('.b-toolbar__link_name_import').click(function(){
-		interface.openDialog('Импорт','123');	
+		var html = '<textarea></textarea>';
+		interface.openDialog('Импорт',html);	
 	});
-	
+
+	$('.b-bg-shadow').click(function(){
+		interface.closeDialog();
+	});
+	$('.b-dialog-win__close-btn').click(function(){
+		interface.closeDialog();
+	})
+});
+$(window).resize(function(){
+	interface.dialogPos();
 });
 </script>
 	<div class="b-header">
@@ -131,7 +150,7 @@ $(function(){
 	</div>
 	<div class="b-bg-shadow"></div>
 	<div class="b-dialog-win">
-		<a class="b-dialog-win__close-btn" href="#"></a>
+		<a class="b-dialog-win__close-btn" href="#"><img src="assets/img/close_icon.png"> </a>
 		<h1 class="b-dialog-win__header"></h1>
 		<div class="b-dialog-win__content"></div>
 	</div>
