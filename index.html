@@ -3,23 +3,6 @@
 <head>
 	<title>SHRI</title>
 </head>
-<script type="text/javascript" src="jq.js"></script>
-<script type="text/javascript">
-function trim (str) { 
-	return str.replace(/^\s+|\s+$/g, ""); 
-}
-function isLocalStorageAvailable() {
-    try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-        return false;
-    }
-}
-	
-/*localStorage.setItem('foo', JSON.stringify(foo));
-var fooFromLS = JSON.parse(localStorage.getItem('foo'));
-console.log(fooFromLS);*/
-</script>
 <body>
 <textarea class="json-import" rows="40" cols="100">
 1.10.2012
@@ -70,96 +53,7 @@ Shtoto eshe 2
 <br>
 <button id="import">Import</button>
 <button id="export">Export</button>
-
-<script type="text/javascript">
-	$(function(){
-		$('#import').click(function(){
-			var text = $('.json-import').val();
-			var arr=text.split('#');
-			var countDays=0;
-			var myArray=new Array(1);
-
-			for (var i = 0; i <= arr.length - 1; i++) {
-				myArray[i]=new Array();
-				//alert(i)
-				var arr2=arr[i].split('\n');
-				var countStr=0;
-				var countLection=0;
-				var countIdea=0;
-				myArray[i][countLection]=new Object();
-				for (var j = 0; j <= arr2.length - 1; j++) {
-
-					if(trim(arr2[j])!='') {
-
-						if(countStr==0){
-							myArray[i][countLection].date=trim(arr2[j]);
-						}
-						if(countStr==1){
-							myArray[i][countLection].time=trim(arr2[j]);
-						}
-						if(countStr==2){
-							myArray[i][countLection].theme=trim(arr2[j]);
-						}
-						if(countStr==3){
-							myArray[i][countLection].lector=trim(arr2[j]);
-						}
-						if(countStr>3){
-							if(trim(arr2[j]).indexOf('?:')+1){
-									if(myArray[i][countLection].idea==undefined)
-										myArray[i][countLection].idea=new Array();
-									myArray[i][countLection].idea[countIdea]=trim(arr2[j]);
-									countIdea++;
-								}
-							else{
-
-								myArray[i][countLection].link=trim(arr2[j]);
-								if(myArray[i][countLection].date==undefined)
-									myArray[i][countLection].date=myArray[i][countLection-1].date;
-								countLection++;
-								countIdea=0;
-								countStr=0;
-
-								myArray[i][countLection]=new Object();
-							}
-						}
-						
-						
-						
-						countStr++;
-
-					}
-						
-					
-				};	
-			};
-
-			console.log(myArray);
-			for (var i = 0; i <= myArray.length - 1; i++) {
-				for (var j = 0; j <= myArray[i].length - 1; j++) {
-					$('body').append('<br>' + myArray[i][j].date);
-				};
-			};
-			var myData=new Object();
-			myData.data=myArray;
-			myData.version=0.1;
-			localStorage.setItem('shri', JSON.stringify(myData));
-		});
-		$('#export').click(function(){
-			console.log('export');
-			var myData=localStorage.getItem('shri');
-			myData=$.parseJSON(myData);
-			console.log(myData.data.length);
-			var res=new String();
-			for (var i = 0; i <= myData.data.length - 1; i++) {
-				if(i!=0)res+= '#\n';
-				for (var j = 0; j <= myData.data[i].length - 1; j++) {
-					res+=myData.data[i][j].date+ '\n';
-				};
-			
-			};
-			$('.json-export').val(res);
-		})
-	})
-</script>
+<script src="jq.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
