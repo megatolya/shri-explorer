@@ -75,11 +75,21 @@ shri.prototype.build=function(){
 	var schedule=this.schedule;
 	var html = new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
+		html+='<div class="b-day"><div class="b-day__date">'+schedule[i][0].date+'</div>';
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
-			$('body').append('<br>' + schedule[i][j].date);
+			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
+			'</div><div class="b-lesson__name">'+schedule[i][j].theme+'</div></div>';
 		}
+		html+='</div>';
 	}
+	$('.b-schedule').html(html);
+	console.log(schedule);
 }
+
+				
+		
+			
+			
 shri.prototype.export = function(selector) {
 	console.log('export');
 	var schedule=localStorage.getItem('shri');
