@@ -103,7 +103,7 @@ shri.prototype.buildSchedule=function(){
 			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
 			'</div><div class="b-lesson__name">'+schedule[i][j].theme+'</div></div>';
 		}
-		html+='<a href="#" class="b-lesson__link">Посмотреть</a></div>';
+		html+='<a href="#" class="b-button b-lesson__link">Посмотреть</a></div>';
 	}
 	$('.b-schedule').html(html);
 	console.log('building schedule done');
@@ -122,8 +122,7 @@ shri.prototype.ini = function() {
 //из json в .shri			
 shri.prototype.export = function() {
 	console.log('export');
-	var schedule=localStorage.getItem('shri');
-	schedule=$.parseJSON(schedule);
+	var schedule=this.schedule;
 	var res=new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
 		if(i!=0)res+= '#\n';
@@ -164,20 +163,21 @@ interface.prototype.showDay = function(id) {
 	var html = new String();
 	for (var i = 0; i <= day.length - 1; i++) {
 		html+='<div class="b-day-lesson"><div class="b-day-lesson__time">'+day[i].time+
-		'</div><div class="b-day-lesson__theme">'+day[i].theme+'</div><div class="b-lector">'+day[i].lector.name+
+		'</div><h1 class="b-day-lesson__theme">'+day[i].theme+'</h1><div class="b-lector">Лектор: '+day[i].lector.name+
 		' (';
 			var lectorLinks=day[i].lector.links.length-1;
 			for (var j = 0; j <= lectorLinks; j++) {
 				html+='<a href="'+day[i].lector.links[j]+'" class="b-lector__link">'+shortUrl(day[i].lector.links[j])+'</a>'+(lectorLinks==j ? '':', ');
 			}
-			html+=')</div><div class="b-headnotes">';
+			html+=')</div><div class="b-headnotes"><h4 class="b-headnotes__header">Тезисы:</h4>';
 			for (var j = 0; j <= day[i].idea.length - 1; j++) {
 				html+='<div class="b-headnote">'+day[i].idea[j]+'</div>';
 			}
-			html+='</div><a href="'+day[i].link+'" target="_blank" class="b-day-lesson__keynote">'+shortUrl(day[i].link)+'</a>';
+			html+='</div><a href="'+day[i].link+'" target="_blank" class="b-button b-day-lesson__keynote">Презентация</a>';
 			html+='</div>';
 	}
-	html+='<div class="b-dialog-win__nav"><a href="#">←</a>  Ctrl  <a href="#">→</a></div>';
+	html+='<div class="b-dialog-win__nav"><a onclick="return false;" class="b-dialog-win__nav_target_prev" href="'+(id-1)+'">←</a>  Ctrl  '+
+		   '<a class="b-dialog-win__nav_target_next" href="'+(parseInt(id)+1)+'">→</a></div>';
 	interface.openDialog(day[0].date,html);
 
 };
@@ -221,8 +221,22 @@ $(function(){
 	});
 
 	$('.b-lesson__link').live('click',function(){
-		var id = $(this).parent().attr('data-day');
+		var id = $(this).parent().data('day');
 		interface.showDay(id);
+		return false;
+	});
+	$('.b-dialog-win__nav_target_prev').live('click',function(){
+		var id = $(this).attr('href');
+		if(id>=0 && id<=shri.schedule.length){
+			interface.showDay(id);
+		}
+		return false;
+	});
+	$('.b-dialog-win__nav_target_next').live('click',function(){
+		var id = $(this).attr('href');
+		if(id>=0 && id<shri.schedule.length){
+			interface.showDay(id);
+		}
 		return false;
 	});
 
