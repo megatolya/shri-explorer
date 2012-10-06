@@ -48,7 +48,6 @@ shri.prototype.import = function(text) {
 					var split = currentStr.split('(');
 					var linksStr=split[1];	
 					linksStr=trim(linksStr.replace(')','').replace(' ',''));
-
 					schedule[i][countLection].lector.name=trim(split[0]);
 					schedule[i][countLection].lector.links=linksStr.split(',');
 				}
@@ -160,10 +159,21 @@ interface.prototype.showDay = function(id) {
 
 	for (var i = 0; i <= day.length - 1; i++) {
 		html+='<div class="b-day-lesson"><div class="b-day-lesson__time">'+day[i].time+
-		'</div><div class="b-day-lesson__theme">'+day[i].theme+'</div><div class="b-lector">'+day[i].lector+
+		'</div><div class="b-day-lesson__theme">'+day[i].theme+'</div><div class="b-lector">'+day[i].lector.name+
 		' (';
-	};
-	interface.openDialog(day[0].date,'');
+			for (var j = 0; j <= day[i].lector.links.length-1; j++) {
+				html+='<a href="#" class="b-lector__link">'+day[i].lector.links[j]+'</a>,'
+			};
+			html+=')</div><div class="b-headnotes">';
+			var ideas=day[i].idea.length;
+
+			for (var j = 0; j <= ideas - 1; j++) {
+				html+='<div class="b-headnote">'+day[i].idea[j]+'</div>';
+			};
+			html+='</div><a href="#" class="b-day-lesson__keynote">'+day[i].link+'</a>';
+			html+='</div>';
+	}
+	interface.openDialog(day[0].date,html);
 
 };
 interface=new interface();
@@ -191,7 +201,6 @@ $(function(){
 
 		interface.openDialog('Экспорт',html);
 		$('.b-export-textarea').val(shri.export()).select();
-
 		return false;
 	});
 	$('.b-toolbar__link_name_manual').click(function(){
@@ -214,6 +223,7 @@ $(function(){
 
 	$('.b-export-textarea').live('click',function(){
 		$(this).select();
+		return false;
 	});
 
 });
