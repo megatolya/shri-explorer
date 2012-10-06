@@ -69,8 +69,9 @@ shri.prototype.today = function() {
 				
 				return i;
 			}
-		};
+		}
 	}
+	return false;
 }
 //из формата shri в формат json
 shri.prototype.import = function(text) {
@@ -148,7 +149,7 @@ shri.prototype.buildSchedule=function(){
 	var schedule=this.schedule;
 	var html = new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
-		html+='<div class="b-day" data-day="'+i+'"><div class="b-day__date">'+schedule[i][0].date+'</div>';
+		html+='<div class="b-day" data-day="'+i+'"><img class="b-day__edit" src="assets/img/pencil.png"><div class="b-day__date">'+schedule[i][0].date+'</div>';
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
 			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
 			'</div><div class="b-lesson__name">'+schedule[i][j].theme+' - <i>'+schedule[i][j].lector.name+'</i></div></div>';
@@ -175,17 +176,18 @@ shri.prototype.saveDay = function(id,arr) {
 }
 
 shri.prototype.ini = function() {
-	if(isLocalStorageAvailable){
-		var schedule = localStorage.getItem('shri');
-		if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
-			this.schedule=$.parseJSON(schedule);
-			this.buildSchedule(schedule);
-		}else{
-			$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать!</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
+
+	var schedule = localStorage.getItem('shri');
+	if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
+		this.schedule=$.parseJSON(schedule);
+		if(!this.today()){
+			$('.b-toolbar__link_name_today').removeClass('b-toolbar__link_name_today').addClass('b-link-disabled')
 		}
+		this.buildSchedule(schedule);
 	}else{
-		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Ой!</h1><p>Ваш браузер не поддерживает localStorage. Пожалуйста, откройте приложение другим браузером.</p></div>');		
+		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать :-)</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
 	}
+
 };		
 			
 //из json в .shri			
@@ -276,11 +278,19 @@ interface.prototype.editDay = function(id) {
 }
 interface=new interface();
 
-$(function(){
+$(function(){	
 	shri.ini();
 	interface.dialogPos();
+	$('.b-day__edit').click(function(){
+		interface.editDay($(this).parent().data('day'));
+		return false;
+	});
+	$('.b-link-disabled').click(function(){
+		return false;
+	});
 	$('.b-toolbar__link_name_today').click(function(){
 		interface.showDay(shri.today());
+		return false;
 	});
 
 	$('.b-toolbar__link_name_import').click(function(){
@@ -348,6 +358,14 @@ $(function(){
 		return false;
 	});
 
+	$('.b-save-day').live('click',function(){
+		var arr=[];
+		$('.b-edit-lesson').each(function(k,form){
+			arr.push(shri.reserialize($(form).serializeObject()));
+		});
+		shri.saveDay($(this).data('id'),arr);
+	});
+
 	shortcut.add("Ctrl+left",function() {
 		if(interface.dialogVisible)
 			$('.b-dialog-win__nav_target_prev').click();
@@ -358,13 +376,7 @@ $(function(){
 			$('.b-dialog-win__nav_target_next').click();
 	});
 
-	$('.b-save-day').live('click',function(){
-		var arr=[];
-		$('.b-edit-lesson').each(function(k,form){
-			arr.push(shri.reserialize($(form).serializeObject()));
-		});
-		shri.saveDay($(this).data('id'),arr);
-	});
+	
 	
 
 });
