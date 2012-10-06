@@ -146,6 +146,7 @@ cursor: pointer;
 overflow-y: auto;
 }
 .b-dialog-win__header{
+	border-bottom: 1px solid black;
 	font-weight: normal;
 	text-align: center;
 	font-style: italic;

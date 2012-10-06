@@ -245,6 +245,17 @@ $(function(){
 		return false;
 	});
 
+	shortcut.add("Ctrl+left",function() {
+		if(interface.dialogVisible)
+			$('.b-dialog-win__nav_target_prev').click();
+	});
+
+	shortcut.add("Ctrl+right",function() {
+		if(interface.dialogVisible)
+			$('.b-dialog-win__nav_target_next').click();
+	});
+
+
 });
 $(window).resize(function(){
 	interface.dialogPos();
