@@ -4,7 +4,7 @@
 	font-family: sans-serif;
 }
 body{
-	background: url('../img/bg1.png');
+	background: url('../img/bg1.png') fixed;
 	padding-bottom: 40px;
 }
 button{
@@ -112,7 +112,7 @@ a:active{
 .b-bg-shadow{
 	display: none;
 	background: black;
-	position: absolute;
+	position: fixed;
 	z-index: 1;
 	opacity: 0.5;
 	left: 0;
@@ -139,6 +139,7 @@ position: absolute;
 top: 2px;
 right: 10px;
 border:none;
+cursor: pointer;
 }
 .b-dialog-win__header{
 	font-weight: normal;

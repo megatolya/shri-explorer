@@ -13,6 +13,7 @@ function shri(){
 	this.version='alpha';
 	this.schedule=undefined;
 }
+
 //из формата shri в формат json
 shri.prototype.import = function(text) {
 	console.log('import');
@@ -74,16 +75,16 @@ shri.prototype.import = function(text) {
 	console.log(JSON.stringify(schedule))
 }
 
-shri.prototype.build=function(){
+shri.prototype.buildSchedule=function(){
 	var schedule=this.schedule;
 	var html = new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
-		html+='<div class="b-day"><div class="b-day__date">'+schedule[i][0].date+'</div>';
+		html+='<div class="b-day" data-day="'+i+'"><div class="b-day__date">'+schedule[i][0].date+'</div>';
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
 			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
 			'</div><div class="b-lesson__name">'+schedule[i][j].theme+'</div></div>';
 		}
-		html+='<a href="#" class="b-lesson__link">Подробнее</a></div>';
+		html+='<a href="#" class="b-lesson__link">Посмотреть</a></div>';
 	}
 	$('.b-schedule').html(html);
 	console.log(schedule);
@@ -94,14 +95,14 @@ shri.prototype.ini = function() {
 	var schedule = localStorage.getItem('shri');
 	if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
 		this.schedule=$.parseJSON(schedule);
-		this.build(schedule);
+		this.buildSchedule(schedule);
 	}else{
 		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать!</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
 	}
 };		
 			
-			
-shri.prototype.export = function(selector) {
+//из json в .shri			
+shri.prototype.export = function() {
 	console.log('export');
 	var schedule=localStorage.getItem('shri');
 	schedule=$.parseJSON(schedule);
@@ -140,34 +141,62 @@ interface.prototype.closeDialog = function() {
 	$('.b-dialog-win').hide();
 	this.dialogVisible=false;
 }
+interface.prototype.showDay = function(id) {
+	var schedule = shri.schedule[id];
+	console.log(schedule[0].date);
+	interface.openDialog(schedule[0].date,'');
+
+};
 interface=new interface();
+
 $(function(){
 	shri.ini();
 	interface.dialogPos();
+	
 	$('.b-toolbar__link_name_import').click(function(){
 		var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
 		interface.openDialog('Импорт',html);	
+		return false;
 	});
 
 	$('.b-bg-shadow').click(function(){
 		interface.closeDialog();
+		return false;
 	});
 	$('.b-dialog-win__close-btn').click(function(){
 		interface.closeDialog();
+		return false;
 	});
 	$('.b-toolbar__link_name_export').click(function(){
-		var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea><button class="b-button b-export-copy">Скопировать в буфер</button>';
+		var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>';
+
 		interface.openDialog('Экспорт',html);
+		$('.b-export-textarea').val(shri.export()).select();
+
+		return false;
 	});
 	$('.b-toolbar__link_name_manual').click(function(){
 		var html = '<p>Здесь будет справка</p>';
 		interface.openDialog('Справочная',html);
+		return false;
 	});
 	$('.b-import-btn').live('click',function(){
 		var text=$('.b-import-textarea').val();
 		shri.import(text);
-		shri.build();
+		shri.buildSchedule();
+		return false;
 	});
+
+	$('.b-lesson__link').live('click',function(){
+		var id = $(this).parent().attr('data-day');
+		interface.showDay(id);
+		return false;
+	});
+
+	$('.b-export-textarea').live('click',function(){
+		$(this).select();
+	});
+
 });
 $(window).resize(function(){
 	interface.dialogPos();
