@@ -152,6 +152,10 @@ overflow-y: auto;
 	font-style: italic;
 	margin: 10px 0;
 }
+.b-dialog-win__nav_target_edit {
+margin-left: 189px;
+
+}
 .b-button{
 display: inline-block;
 padding: 4px 14px;
@@ -242,4 +246,19 @@ margin: 10px;
 	position: absolute;
 	bottom: 7px;
 	left: 390px;
+}
+.b-edit-lesson__date{
+	margin: 6px 0;
+}
+.b-edit-lesson__time{
+	margin: 6px 0;
+}
+.b-edit-lesson__idea-header{
+	margin: 6px 0;
+}
+.b-edit-lesson__idea{
+	margin: 6px 0;
+}
+.b-edit-lesson__theme{
+	margin: 6px 0;
 }

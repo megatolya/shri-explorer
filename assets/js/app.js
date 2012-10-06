@@ -1,3 +1,19 @@
+$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+}
 //пробелы в начале и в конце
 function trim (str) { 
 	return str.replace(/^\s+|\s+$/g, ""); 
@@ -102,12 +118,27 @@ shri.prototype.buildSchedule=function(){
 		html+='<div class="b-day" data-day="'+i+'"><div class="b-day__date">'+schedule[i][0].date+'</div>';
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
 			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
-			'</div><div class="b-lesson__name">'+schedule[i][j].theme+'</div></div>';
+			'</div><div class="b-lesson__name">'+schedule[i][j].theme+' - <i>'+schedule[i][j].lector.name+'</i></div></div>';
 		}
 		html+='<a href="#" class="b-button b-lesson__link">Посмотреть</a></div>';
 	}
 	$('.b-schedule').html(html);
 	console.log('building schedule done');
+}
+shri.prototype.reserialize = function(obj) {
+	obj.lector=new Object;
+	obj.lector.name=obj['lector.name'];
+	obj.lector.links=obj['lector.links'];
+	if(typeof(obj.lector.links)=='string')
+		obj.lector.links=new Array(obj.lector.links);
+	delete obj['lector.links'];
+	delete obj['lector.name'];
+	return obj;
+}
+shri.prototype.saveDay = function(id,arr) {
+	this.schedule[id]=arr;
+	localStorage.setItem('shri',JSON.stringify(this.schedule));
+	shri.buildSchedule();
 }
 
 shri.prototype.ini = function() {
@@ -178,10 +209,33 @@ interface.prototype.showDay = function(id) {
 			html+='</div>';
 	}
 	html+='<div class="b-dialog-win__nav"><a onclick="return false;" class="b-dialog-win__nav_target_prev" href="'+(id-1)+'">←</a>  Ctrl  '+
-		   '<a class="b-dialog-win__nav_target_next" href="'+(parseInt(id)+1)+'">→</a></div>';
+		   '<a class="b-dialog-win__nav_target_next" href="'+(parseInt(id)+1)+'">→</a> <a class="b-dialog-win__nav_target_edit" href="'+(parseInt(id))+'">Изменить</a></div>';
 	interface.openDialog(day[0].date,html);
 
-};
+}
+interface.prototype.editDay = function(id) {
+	//TODO: currentDay
+	var day = shri.schedule[id];
+	var html = new String();
+	var date = day[0].date;
+	for (var i = 0; i <= day.length - 1; i++) {
+		html+='<form class="b-edit-lesson" data-id="'+i+'"><input class="b-edit-lesson__date" type="hidden" name="date" value="'+date+'">'+
+		'<p class="b-edit-lesson__time">Время <input name="time" value="'+day[i].time+'"></p>'+
+		'<p class="b-edit-lesson__theme">Тема <input name="theme" value="'+day[i].theme+'"></p><p class="b-edit-lesson__idea-header">Тезисы</p>';
+
+		for (var j = 0; j <= day[i].idea.length - 1; j++) {
+			html+='<div class="b-edit-lesson__idea"><input name="idea" value="'+day[i].idea[j]+'"></div>';
+		}
+		html+='<p class="b-edit-lesson__lector-name">Лектор <input name="lector.name" value="'+day[i].lector.name+'"></p><p>Ссылки на лектора</p>';
+		for (var j = 0; j <= day[i].lector.links.length - 1; j++) {
+			html+='<input class="b-edit-lesson__lector-link" name="lector.links" value="'+day[i].lector.links[j]+'">';
+		};
+		html+='<p class="b-edit-lesson__presentation">Презентация <input name="link" value="'+day[i].link+'"></p></form>';
+	}
+	html+='<button class="b-save-day b-button" data-id="'+id+'">Сохранить</button>';
+	this.openDialog(date,html);
+
+}
 interface=new interface();
 
 $(function(){
@@ -241,6 +295,12 @@ $(function(){
 		return false;
 	});
 
+	$('.b-dialog-win__nav_target_edit').live('click',function(){
+		var id = $(this).attr('href');
+			interface.editDay(id);
+		return false;
+	});
+
 	$('.b-export-textarea').live('click',function(){
 		$(this).select();
 		return false;
@@ -256,6 +316,14 @@ $(function(){
 			$('.b-dialog-win__nav_target_next').click();
 	});
 
+	$('.b-save-day').live('click',function(){
+		var arr=[];
+		$('.b-edit-lesson').each(function(k,form){
+			arr.push(shri.reserialize($(form).serializeObject()));
+		});
+		shri.saveDay($(this).data('id'),arr);
+	});
+	
 
 });
 $(window).resize(function(){
