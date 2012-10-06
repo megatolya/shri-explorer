@@ -65,6 +65,7 @@ shri.prototype.import = function(text) {
 					if(trim(arr2[j]).indexOf('?:')+1){
 							if(schedule[i][countLection].idea==undefined)
 								schedule[i][countLection].idea=new Array();
+							currentStr=trim(currentStr.replace('?:',''));
 							schedule[i][countLection].idea[countIdea]=currentStr;
 							countIdea++;
 						}
