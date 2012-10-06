@@ -30,18 +30,29 @@ shri.prototype.import = function(text) {
 		for (var j = 0; j <= arr2.length - 1; j++) {
 			var currentStr=trim(arr2[j]);
 			if(currentStr!='') {
+				//date
 				if(countStr==0){
 					schedule[i][countLection].date=currentStr;
 				}
+				//time
 				if(countStr==1){
 					schedule[i][countLection].time=currentStr;
 				}
+				//theme
 				if(countStr==2){
 					schedule[i][countLection].theme=currentStr;
 				}
+				//lector
 				if(countStr==3){
-					schedule[i][countLection].lector=currentStr;
+					schedule[i][countLection].lector=new Object();
+					var split = currentStr.split('(');
+					var linksStr=split[1];	
+					linksStr=trim(linksStr.replace(')','').replace(' ',''));
+
+					schedule[i][countLection].lector.name=trim(split[0]);
+					schedule[i][countLection].lector.links=linksStr.split(',');
 				}
+				//idea
 				if(countStr>3){
 					if(trim(arr2[j]).indexOf('?:')+1){
 							if(schedule[i][countLection].idea==undefined)
@@ -49,6 +60,7 @@ shri.prototype.import = function(text) {
 							schedule[i][countLection].idea[countIdea]=currentStr;
 							countIdea++;
 						}
+				//presentation link
 					else{
 						schedule[i][countLection].link=currentStr;
 						if(schedule[i][countLection].date==undefined)
@@ -56,7 +68,6 @@ shri.prototype.import = function(text) {
 						countLection++;
 						countIdea=0;
 						countStr=0;
-						console.log(j);
 						schedule[i][countLection]=new Object();
 					}
 				}
@@ -71,11 +82,11 @@ shri.prototype.import = function(text) {
 	this.schedule=schedule;
 
 	localStorage.setItem('shri', JSON.stringify(schedule));
-	localStorage.setItem('test', 'JSON.stringify(schedule)');
-	console.log(JSON.stringify(schedule))
+	console.log('import done');
 }
 
 shri.prototype.buildSchedule=function(){
+	console.log('building schedule');
 	var schedule=this.schedule;
 	var html = new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
@@ -87,7 +98,7 @@ shri.prototype.buildSchedule=function(){
 		html+='<a href="#" class="b-lesson__link">Посмотреть</a></div>';
 	}
 	$('.b-schedule').html(html);
-	console.log(schedule);
+	console.log('building schedule done');
 }
 
 				
@@ -142,9 +153,17 @@ interface.prototype.closeDialog = function() {
 	this.dialogVisible=false;
 }
 interface.prototype.showDay = function(id) {
-	var schedule = shri.schedule[id];
-	console.log(schedule[0].date);
-	interface.openDialog(schedule[0].date,'');
+	var day = shri.schedule[id];
+	console.log(day[0].date);
+	var html = new String();
+	console.log(day);
+
+	for (var i = 0; i <= day.length - 1; i++) {
+		html+='<div class="b-day-lesson"><div class="b-day-lesson__time">'+day[i].time+
+		'</div><div class="b-day-lesson__theme">'+day[i].theme+'</div><div class="b-lector">'+day[i].lector+
+		' (';
+	};
+	interface.openDialog(day[0].date,'');
 
 };
 interface=new interface();
