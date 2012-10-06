@@ -33,12 +33,45 @@ function shortUrl(url){
 	return url[0];
 }
 
+
+function Today(){
+	return new Date (new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+}
+function date(text){
+	//15.09.2012
+	text = trim(text);
+	var arr=text.split('.');
+	var year = parseInt(arr[2]);
+	if(arr[1][0]!='0')
+		var month = parseInt(arr[1]);
+	else
+		var month = parseInt(arr[1][1]);
+	var day = parseInt(arr[0]);
+	var date = new Date(year,month-1,day);
+	return date;
+}
+
 //компонент, отвечающий за данные
 function shri(){
 	this.version='alpha';
 	this.schedule=undefined;
 }
-
+//TODO Break
+shri.prototype.today = function() {
+	var today = Today().valueOf();
+	var schedule = this.schedule;
+	for (var i = schedule.length - 1; i >= 0; i--) {
+		var day=schedule[i]
+		for (var j = day.length - 1; j >= 0; j--) {
+			console.log('day ',date(day[j].date));
+			console.log('today ',today);
+			if(date(day[j].date).valueOf()==today){
+				
+				return i;
+			}
+		};
+	}
+}
 //из формата shri в формат json
 shri.prototype.import = function(text) {
 	console.log('import');
@@ -142,12 +175,16 @@ shri.prototype.saveDay = function(id,arr) {
 }
 
 shri.prototype.ini = function() {
-	var schedule = localStorage.getItem('shri');
-	if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
-		this.schedule=$.parseJSON(schedule);
-		this.buildSchedule(schedule);
+	if(isLocalStorageAvailable){
+		var schedule = localStorage.getItem('shri');
+		if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
+			this.schedule=$.parseJSON(schedule);
+			this.buildSchedule(schedule);
+		}else{
+			$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать!</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
+		}
 	}else{
-		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать!</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
+		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Ой!</h1><p>Ваш браузер не поддерживает localStorage. Пожалуйста, откройте приложение другим браузером.</p></div>');		
 	}
 };		
 			
@@ -242,7 +279,10 @@ interface=new interface();
 $(function(){
 	shri.ini();
 	interface.dialogPos();
-	
+	$('.b-toolbar__link_name_today').click(function(){
+		interface.showDay(shri.today());
+	});
+
 	$('.b-toolbar__link_name_import').click(function(){
 		var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
 		interface.openDialog('Импорт',html);	
@@ -273,6 +313,7 @@ $(function(){
 		var text=$('.b-import-textarea').val();
 		shri.import(text);
 		shri.buildSchedule();
+		interface.closeDialog();
 		return false;
 	});
 
