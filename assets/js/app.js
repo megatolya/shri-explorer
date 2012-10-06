@@ -181,7 +181,8 @@ interface.prototype.openDialog = function(header,html) {
 interface.prototype.dialogPos = function() {
 	var winWidth = $(window).width();
 	var dialogWidth = $('.b-dialog-win').width();
-	$('.b-dialog-win').css('left',(winWidth-dialogWidth)/2)
+	$('.b-dialog-win').css('left',(winWidth-dialogWidth)/2);
+	$('.b-dialog-win__content').css('max-height',$(window).height()-200+'px');
 }
 interface.prototype.closeDialog = function() {
 	$('body').css('overflow','auto');
