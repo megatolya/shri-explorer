@@ -1,6 +1,8 @@
+//пробелы в начале и в конце
 function trim (str) { 
 	return str.replace(/^\s+|\s+$/g, ""); 
 }
+//проверка на localStorage
 function isLocalStorageAvailable() {
     try {
         return 'localStorage' in window && window['localStorage'] !== null;
@@ -8,7 +10,14 @@ function isLocalStorageAvailable() {
         return false;
     }
 }
+//полный url в домен
+//TODO: регулярка
+function shortUrl(url){
+	url = url.replace('http://','').replace('https://','').replace('ftp://','').replace('//','').replace('#','/').replace('?','/').split('/');
+	return url[0];
+}
 
+//компонент, отвечающий за данные
 function shri(){
 	this.version='alpha';
 	this.schedule=undefined;
@@ -17,7 +26,7 @@ function shri(){
 //из формата shri в формат json
 shri.prototype.import = function(text) {
 	console.log('import');
-	var arr=text.split('#');
+	var arr=text.split('##');
 	var countDays=0;
 	var schedule=new Array(1);
 	for (var i = 0; i <= arr.length - 1; i++) {
@@ -100,7 +109,6 @@ shri.prototype.buildSchedule=function(){
 	console.log('building schedule done');
 }
 
-				
 shri.prototype.ini = function() {
 	var schedule = localStorage.getItem('shri');
 	if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
@@ -125,10 +133,9 @@ shri.prototype.export = function() {
 	};
 	return res;
 };
-/*localStorage.setItem('foo', JSON.stringify(foo));
-var fooFromLS = JSON.parse(localStorage.getItem('foo'));
-console.log(fooFromLS);*/
 shri= new shri();
+
+//компонент, отвечающий за интерфейс
 function interface(){
 	this.dialogVisible=false;
 }
@@ -152,27 +159,25 @@ interface.prototype.closeDialog = function() {
 	this.dialogVisible=false;
 }
 interface.prototype.showDay = function(id) {
+	//TODO: currentDay
 	var day = shri.schedule[id];
-	console.log(day[0].date);
 	var html = new String();
-	console.log(day);
-
 	for (var i = 0; i <= day.length - 1; i++) {
 		html+='<div class="b-day-lesson"><div class="b-day-lesson__time">'+day[i].time+
 		'</div><div class="b-day-lesson__theme">'+day[i].theme+'</div><div class="b-lector">'+day[i].lector.name+
 		' (';
-			for (var j = 0; j <= day[i].lector.links.length-1; j++) {
-				html+='<a href="#" class="b-lector__link">'+day[i].lector.links[j]+'</a>,'
-			};
+			var lectorLinks=day[i].lector.links.length-1;
+			for (var j = 0; j <= lectorLinks; j++) {
+				html+='<a href="'+day[i].lector.links[j]+'" class="b-lector__link">'+shortUrl(day[i].lector.links[j])+'</a>'+(lectorLinks==j ? '':', ');
+			}
 			html+=')</div><div class="b-headnotes">';
-			var ideas=day[i].idea.length;
-
-			for (var j = 0; j <= ideas - 1; j++) {
+			for (var j = 0; j <= day[i].idea.length - 1; j++) {
 				html+='<div class="b-headnote">'+day[i].idea[j]+'</div>';
-			};
-			html+='</div><a href="#" class="b-day-lesson__keynote">'+day[i].link+'</a>';
+			}
+			html+='</div><a href="'+day[i].link+'" target="_blank" class="b-day-lesson__keynote">'+shortUrl(day[i].link)+'</a>';
 			html+='</div>';
 	}
+	html+='<div class="b-dialog-win__nav"><a href="#">←</a>  Ctrl  <a href="#">→</a></div>';
 	interface.openDialog(day[0].date,html);
 
 };
