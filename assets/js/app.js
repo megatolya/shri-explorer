@@ -75,11 +75,8 @@ shri.prototype.addLectionToDay = function(lection,day) {
 	var newArr=dayArr.sort(function(a,b){
 		a=parseInt(a.time.replace(':',''));
 		b=parseInt(b.time.replace(':',''));
-		console.log('a = '+a);
-		console.log('b = '+b);
 		return a-b;
 	});
-	console.log(newArr);
 	this.schedule[day]=newArr;
 	localStorage.setItem('shri', JSON.stringify(this.schedule));
 }
@@ -111,7 +108,6 @@ shri.prototype.today = function() {
 }
 //из формата shri в формат json
 shri.prototype.import = function(text) {
-	console.log('import');
 	var arr=text.split('##');
 	var countDays=0;
 	var schedule=new Array(1);
@@ -175,11 +171,9 @@ shri.prototype.import = function(text) {
 	}
 	this.schedule=schedule;
 	localStorage.setItem('shri', JSON.stringify(schedule));
-	console.log('import done');
 }
 //TODO поменять все парентс на data-id, data-id поменять на data-day
 shri.prototype.buildSchedule=function(){
-	console.log('building schedule');
 	var schedule=this.schedule;
 	var html = new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
@@ -199,18 +193,12 @@ shri.prototype.buildSchedule=function(){
 			accept: ".b-lesson__time",
 			activeClass: "mega-test",
 			drop: function( event, ui ) {
-				console.log(this);
-				//console.log(ui.draggable);
 				var date = $(this).html()+'.'+($(this).parent().data('month')+1)+'.'+$(this).parent().data('year');
-				//if(confirm('Перенести лекцию на ' + date+'?')){
 					if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
 						shri.buildSchedule();
 					}else{
 						$(ui.draggable).css('left','auto').css('top','auto');
 					}
-				/*}else{
-					$(ui.draggable).css('left','auto').css('top','auto');
-				}*/
 			}
 	});
 	$('.b-day').droppable({
@@ -219,23 +207,18 @@ shri.prototype.buildSchedule=function(){
 			drop: function( event, ui ) {
 				var date = $(this).find('.b-day__date').html();
 				if(date!=shri.schedule[$(ui.draggable).data('day')][0].date){
-					//if(confirm('Перенести лекцию на ' + date+'?')){
 						if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
 							shri.buildSchedule();
 						}
 					}else{
 						$(ui.draggable).css('left','auto').css('top','auto');
 					}
-				/*}else{
-					$(ui.draggable).css('left','auto').css('top','auto');
-				}*/
 			}
 	});
 	
-	console.log('building schedule done');
+	
 }
 shri.prototype.changeLectionDay = function(day,lection,date) {
-	console.log('changing day');
 	var schedule = this.schedule;
 	//если переносят в тот же день
 	if(schedule[day][lection].date==date)
@@ -256,7 +239,6 @@ shri.prototype.changeLectionDay = function(day,lection,date) {
 	this.schedule[this.schedule.length-1][0].date=date;
 	this.deleteLectionFromDay(day,lection);
 	this.schedule.sort(function(a,b){
-		console.log(a);
 		a=a[0].date.split('.');
 		b=b[0].date.split('.');
 		a=a[2]+a[1]+a[0];
@@ -264,7 +246,7 @@ shri.prototype.changeLectionDay = function(day,lection,date) {
 		return parseInt(a)-parseInt(b);
 	});
 	
-	//localStorage.setItem('shri',JSON.stringify(this.schedule));
+	localStorage.setItem('shri',JSON.stringify(this.schedule));
 	return true;
 
 };
@@ -301,7 +283,6 @@ shri.prototype.ini = function() {
 			
 //из json в .shri			
 shri.prototype.export = function() {
-	console.log('export');
 	var schedule=this.schedule;
 	var res=new String();
 	for (var i = 0; i <= schedule.length - 1; i++) {
@@ -317,6 +298,8 @@ shri= new shri();
 //компонент, отвечающий за интерфейс
 function interface(){
 	this.dialogVisible=false;
+	this.datepickerOpened=false;
+	this.datepickerOpenedByDrag=false;
 }
 interface.prototype.openDialog = function(header,html,footer) {
 	this.dialogVisible=true;
@@ -363,6 +346,35 @@ interface.prototype.showDay = function(id) {
 	interface.openDialog(day[0].date,html);
 
 }
+interface.prototype.datepickerToggle = function(time) {
+	if(time==undefined)
+		time=0;
+	if(this.datepickerOpened){
+		this.datepickerClose(time);
+	}else{
+		this.datepickerOpen(time);
+	}
+}
+interface.prototype.datepickerClose = function (time) {
+	if(time==undefined)
+		time=0;
+	$('.b-datepicker-toggle').animate({
+			left:'-315px'
+		},time,function(){
+			$('.b-datepicker-toggle__nav-button').attr('src','assets/img/right_arrow.png');
+			interface.datepickerOpened=false;
+		});
+}
+interface.prototype.datepickerOpen = function (time) {
+	if(time==undefined)
+		time=0;
+	$('.b-datepicker-toggle').animate({
+			left:0
+		},time,function(){
+			$('.b-datepicker-toggle__nav-button').attr('src','assets/img/left_arrow.png');
+			interface.datepickerOpened=true;
+		});
+}
 interface.prototype.editDay = function(id) {
 	//TODO: currentDay
 	var day = shri.schedule[id];
@@ -401,12 +413,21 @@ $(function(){
 	$.datepicker.setDefaults($.datepicker.regional['ru']);
   	$('.b-datepicker').datepicker();
 	$('.b-lesson__time').live('mousedown',function(){
-		$('.b-datepicker').show();
+		if(interface.datepickerOpened)
+			interface.datepickerOpenedByDrag=false;
+		else
+			interface.datepickerOpenedByDrag=true;
+		interface.datepickerOpen(200);
 	});
-	$(document).live('mouseup',function(){
+	$(document).mouseup(function(){
+		if(interface.datepickerOpenedByDrag)
 		setTimeout(function(){
-			$('.b-datepicker').hide()
-		},100);
+			interface.datepickerClose(500);
+			interface.datepickerOpenedByDrag=false;
+		},1000);
+	});
+	$('.b-datepicker-toggle__nav-button').click(function(){
+		interface.datepickerToggle(200);
 	});
 	shri.ini();
 	interface.dialogPos();
@@ -522,3 +543,4 @@ $(function(){
 $(window).resize(function(){
 	interface.dialogPos();
 });
+/* TODO today rename*/
