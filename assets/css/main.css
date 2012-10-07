@@ -324,6 +324,13 @@ margin: 10px;
 }
 .b-edit-lesson__input{
 	width: 98%;
+	margin: 3px 0;
+}
+.b-edit-lesson__input_name_date{
+	width: 200px;
+}
+.b-edit-lesson__input_name_time{
+	width: 200px;
 }
 .b-datepicker-toggle{
 	display: block;

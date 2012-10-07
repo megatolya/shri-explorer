@@ -392,8 +392,8 @@ interface.prototype.editDay = function(id) {
 	var date = day[0].date;
 	for (var i = 0; i <= day.length - 1; i++) {
 		html+='<form class="b-edit-lesson" data-id="'+i+'"><table class="i-edit-lesson">'+
-				'<tr><td width="10%">Дата</td><td colspan="2" width="80%"><input class="b-edit-lesson__input" name="date" value="'+date+'"></td></tr>'+
-				'<tr><td>Время</td><td><input class="b-edit-lesson__input" name="time" value="'+day[i].time+'"></td></tr>'+
+				'<tr><td width="10%">Дата</td><td colspan="2" width="80%"><input class="b-edit-lesson__input b-edit-lesson__input_name_date" name="date" value="'+date+'"></td></tr>'+
+				'<tr><td>Время</td><td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="'+day[i].time+'"></td></tr>'+
 				'<tr><td colspan="3">Тема</td></tr>'+
 				'<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="'+day[i].theme+'"></td></tr>'+
 				'<tr><td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td></tr>';
@@ -403,7 +403,7 @@ interface.prototype.editDay = function(id) {
 		}
 		html+='<tr><td colspan="3">Лектор</td></tr>'+
 			  '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="'+day[i].lector.name+'"></td></tr>'+
-			  '<tr><td colspan="3">Ссылки на лектора</td></tr>';
+			  '<tr><td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td></tr>';
 		for (var j = 0; j <= day[i].lector.links.length - 1; j++) {
 			html+='<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="'+day[i].lector.links[j]+'"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
 		};
@@ -411,7 +411,7 @@ interface.prototype.editDay = function(id) {
 			  '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="'+day[i].link+'"></td></tr>'+
 		      '</table></form>';
 	}
-	var footer='<a href="#" class="b-save-day" data-id="'+id+'">Сохранить и выйти</a> '+
+	var footer='<a href="#" class="b-save-day" data-id="'+id+'">Сохранить</a> '+
 				'<a href="#" class="b-lesson__link" data-id="'+id+'">Показать день</a> '+
 				'<a href="#" class="b-save-day-quit">Выйти</a>';
 	this.openDialog(date,html,footer);
@@ -549,6 +549,10 @@ $(function(){
 		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea"></td></tr>');
 		return false;
 	});
+	$('.b-edit-lesson__add-link').live('click',function(){
+		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links"></td></tr>');
+		return false;
+	});
 
 	shortcut.add("Ctrl+left",function() {
 		if(interface.dialogVisible)
@@ -567,4 +571,5 @@ $(function(){
 $(window).resize(function(){
 	interface.dialogPos();
 });
-/* TODO today rename*/
+/* TODO function today rename*/
+/* TODO редактирвание отдельных лекций */
