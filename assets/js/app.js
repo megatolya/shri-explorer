@@ -154,11 +154,12 @@ shri.prototype.buildSchedule=function(){
 		html+='<a href="#" class="b-button b-lesson__link" data-id="'+i+'">Посмотреть</a></div>';
 	}
 	$('.b-schedule').html(html);
-	$('.b-lesson__name').draggable({
-		revert: "invalid"
+	$('.b-lesson__time').draggable({
+		revert: "invalid",
+		cursor: "move"
 	});
 	$('.ui-state-default').droppable({
-			accept: ".b-lesson__name",
+			accept: ".b-lesson__time",
 			activeClass: "mega-test",
 			drop: function( event, ui ) {
 				console.log(ui);
@@ -300,7 +301,12 @@ interface.prototype.editDay = function(id) {
 interface=new interface();
 
 $(function(){	
-	$('.b-datepicker').datepicker();;
+	$.datepicker.setDefaults($.datepicker.regional['ru']);
+  	
+
+		$('.b-datepicker').datepicker();
+
+
 	
 	shri.ini();
 	interface.dialogPos();
