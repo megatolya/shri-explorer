@@ -218,6 +218,14 @@ shri.prototype.buildSchedule=function(){
 	
 	
 }
+shri.prototype.getDayByDate = function(date) {
+	var schedule = this.schedule;
+	for (var i = schedule.length - 1; i >= 0; i--) {
+		if(schedule[i][0].date==date)
+			return i;	
+	}
+	return false;
+}
 shri.prototype.changeLectionDay = function(day,lection,date) {
 	var schedule = this.schedule;
 	//если переносят в тот же день
@@ -256,6 +264,8 @@ shri.prototype.reserialize = function(obj) {
 	obj.lector.links=obj['lector.links'];
 	if(typeof(obj.lector.links)=='string')
 		obj.lector.links=new Array(obj.lector.links);
+	if(typeof(obj.idea)=='string')
+		obj.idea=new Array(obj.idea);
 	delete obj['lector.links'];
 	delete obj['lector.name'];
 	return obj;
@@ -386,7 +396,7 @@ interface.prototype.editDay = function(id) {
 				'<tr><td>Время</td><td><input class="b-edit-lesson__input" name="time" value="'+day[i].time+'"></td></tr>'+
 				'<tr><td colspan="3">Тема</td></tr>'+
 				'<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="'+day[i].theme+'"></td></tr>'+
-				'<tr><td colspan="3">Тезисы</td></tr>';
+				'<tr><td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td></tr>';
 
 		for (var j = 0; j <= day[i].idea.length - 1; j++) {
 			html+='<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="'+day[i].idea[j]+'"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
@@ -488,16 +498,14 @@ $(function(){
 	});
 	$('.b-dialog-win__nav_target_prev').live('click',function(){
 		var id = $(this).attr('href');
-		if(id>=0 && id<=shri.schedule.length){
+		if(id>=0 && id<=shri.schedule.length)
 			interface.showDay(id);
-		}
 		return false;
 	});
 	$('.b-dialog-win__nav_target_next').live('click',function(){
 		var id = $(this).attr('href');
-		if(id>=0 && id<shri.schedule.length){
+		if(id>=0 && id<shri.schedule.length)
 			interface.showDay(id);
-		}
 		return false;
 	});
 
@@ -506,7 +514,14 @@ $(function(){
 			interface.editDay(id);
 		return false;
 	});
-
+	$('.ui-state-default').click(function(){
+		$this=$(this);
+		var date=$this.html()+'.'+($this.parent().data('month')+1)+'.'+$this.parent().data('year');
+		var id=shri.getDayByDate(date);
+		if(id)
+			interface.showDay(id);
+		return false;
+	});
 	$('.b-export-textarea').live('click',function(){
 		$(this).select();
 		return false;
@@ -524,6 +539,15 @@ $(function(){
 		var $this=$(this);
 		if($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-idea').length>1)
 			$this.parents('tr').remove();
+	});
+	$('.b-edit-lesson__delete-link').live('click',function(){
+		var $this=$(this);
+		if($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-link').length>1)
+			$this.parents('tr').remove();
+	});
+	$('.b-edit-lesson__add-idea').live('click',function(){
+		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea"></td></tr>');
+		return false;
 	});
 
 	shortcut.add("Ctrl+left",function() {
