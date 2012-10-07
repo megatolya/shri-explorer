@@ -4,6 +4,7 @@
 	<title>ШРИ</title>
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="assets/css/main.css">
+	<link rel="stylesheet" href="assets/css/jquery-ui-1.8.24.custom.css">
 </head>
 <body>
 	<div class="b-header">
@@ -12,6 +13,7 @@
 	<div class="b-schedule">
 	</div>
 	<div class="b-toolbar">
+		//Версия для печати
 		<a class="b-toolbar__link b-toolbar__link_name_today" href="#">Сегодня</a>
 		<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
 		<a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
@@ -22,9 +24,12 @@
 		<img class="b-dialog-win__close-btn"  src="assets/img/close_icon.png"> 
 		<h1 class="b-dialog-win__header"></h1>
 		<div class="b-dialog-win__content"></div>
+		<div class="b-dialog-win__footer"></div>
 	</div>
+	<div class="b-datepicker"></div>
 </body>
 <script src="assets/js/jq.js"></script>
+<script src="assets/js/jq-ui.js"></script>
 <script src="assets/js/shortcut.js"></script>
 <script src="assets/js/app.js"></script>
 </html>

@@ -1,3 +1,4 @@
+// TODO reserealize add
 $.fn.serializeObject = function()
 {
     var o = {};
@@ -63,8 +64,6 @@ shri.prototype.today = function() {
 	for (var i = schedule.length - 1; i >= 0; i--) {
 		var day=schedule[i]
 		for (var j = day.length - 1; j >= 0; j--) {
-			console.log('day ',date(day[j].date));
-			console.log('today ',today);
 			if(date(day[j].date).valueOf()==today){
 				
 				return i;
@@ -137,9 +136,7 @@ shri.prototype.import = function(text) {
 		if(schedule[i][countLection].time==undefined)
 				schedule[i].splice(countLection,1)
 	}
-	
 	this.schedule=schedule;
-
 	localStorage.setItem('shri', JSON.stringify(schedule));
 	console.log('import done');
 }
@@ -154,9 +151,23 @@ shri.prototype.buildSchedule=function(){
 			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
 			'</div><div class="b-lesson__name">'+schedule[i][j].theme+' - <i>'+schedule[i][j].lector.name+'</i></div></div>';
 		}
-		html+='<a href="#" class="b-button b-lesson__link">Посмотреть</a></div>';
+		html+='<a href="#" class="b-button b-lesson__link" data-id="'+i+'">Посмотреть</a></div>';
 	}
 	$('.b-schedule').html(html);
+	$('.b-lesson__name').draggable({
+		revert: "invalid"
+	});
+	$('.ui-state-default').droppable({
+			accept: ".b-lesson__name",
+			activeClass: "mega-test",
+			drop: function( event, ui ) {
+				console.log(ui);
+				console.log(ui.draggable);
+				console.log(event);
+				alert($(this).html());
+			}
+	});
+	
 	console.log('building schedule done');
 }
 shri.prototype.reserialize = function(obj) {
@@ -185,7 +196,7 @@ shri.prototype.ini = function() {
 		}
 		this.buildSchedule(schedule);
 	}else{
-		$('.b-schedule').html('<div class="b-schedule__hello"><h1>Добро пожаловать :-)</h1><p>Загляните в справку или загрузите ваше расписание</p></div>');
+		$('.b-schedule').html('<div class="b-day"><h1 class="b-hello-header">Добро пожаловать :-)</h1><p class="b-hello-text">Загляните в справку или загрузите ваше расписание.</p></div>');
 	}
 
 };		
@@ -209,10 +220,11 @@ shri= new shri();
 function interface(){
 	this.dialogVisible=false;
 }
-interface.prototype.openDialog = function(header,html) {
+interface.prototype.openDialog = function(header,html,footer) {
 	this.dialogVisible=true;
 	$('.b-dialog-win__content').html(html);
 	$('.b-dialog-win__header').html(header);
+	$('.b-dialog-win__footer').html((footer==undefined?'':footer));
 	$('.b-bg-shadow').show();
 	$('.b-dialog-win').show();
 	$('body').css('overflow','hidden');
@@ -221,7 +233,7 @@ interface.prototype.dialogPos = function() {
 	var winWidth = $(window).width();
 	var dialogWidth = $('.b-dialog-win').width();
 	$('.b-dialog-win').css('left',(winWidth-dialogWidth)/2);
-	$('.b-dialog-win__content').css('max-height',$(window).height()-200+'px');
+	$('.b-dialog-win__content').css('max-height',$(window).height()-220+'px');
 }
 interface.prototype.closeDialog = function() {
 	$('body').css('overflow','auto');
@@ -259,29 +271,40 @@ interface.prototype.editDay = function(id) {
 	var html = new String();
 	var date = day[0].date;
 	for (var i = 0; i <= day.length - 1; i++) {
-		html+='<form class="b-edit-lesson" data-id="'+i+'"><input class="b-edit-lesson__date" type="hidden" name="date" value="'+date+'">'+
-		'<p class="b-edit-lesson__time">Время <input name="time" value="'+day[i].time+'"></p>'+
-		'<p class="b-edit-lesson__theme">Тема <input name="theme" value="'+day[i].theme+'"></p><p class="b-edit-lesson__idea-header">Тезисы</p>';
+		html+='<form class="b-edit-lesson" data-id="'+i+'"><table class="i-edit-lesson">'+
+				'<tr><td width="10%">Дата</td><td colspan="2" width="80%"><input class="b-edit-lesson__input" name="date" value="'+date+'"></td></tr>'+
+				'<tr><td>Время</td><td><input class="b-edit-lesson__input" name="time" value="'+day[i].time+'"></td></tr>'+
+				'<tr><td colspan="3">Тема</td></tr>'+
+				'<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="'+day[i].theme+'"></td></tr>'+
+				'<tr><td colspan="3">Тезисы</td></tr>';
 
 		for (var j = 0; j <= day[i].idea.length - 1; j++) {
-			html+='<div class="b-edit-lesson__idea"><input name="idea" value="'+day[i].idea[j]+'"></div>';
+			html+='<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="'+day[i].idea[j]+'"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
 		}
-		html+='<p class="b-edit-lesson__lector-name">Лектор <input name="lector.name" value="'+day[i].lector.name+'"></p><p>Ссылки на лектора</p>';
+		html+='<tr><td colspan="3">Лектор</td></tr>'+
+			  '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="'+day[i].lector.name+'"></td></tr>'+
+			  '<tr><td colspan="3">Ссылки на лектора</td></tr>';
 		for (var j = 0; j <= day[i].lector.links.length - 1; j++) {
-			html+='<input class="b-edit-lesson__lector-link" name="lector.links" value="'+day[i].lector.links[j]+'">';
+			html+='<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="'+day[i].lector.links[j]+'"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
 		};
-		html+='<p class="b-edit-lesson__presentation">Презентация <input name="link" value="'+day[i].link+'"></p></form>';
+		html+='<tr><td colspan="3">Презентация</td></tr>'+
+			  '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="'+day[i].link+'"></td></tr>'+
+		      '</table></form>';
 	}
-	html+='<button class="b-save-day b-button" data-id="'+id+'">Сохранить</button>';
-	this.openDialog(date,html);
+	var footer='<a href="#" class="b-save-day" data-id="'+id+'">Сохранить и выйти</a> '+
+				'<a href="#" class="b-lesson__link" data-id="'+id+'">Показать день</a> '+
+				'<a href="#" class="b-save-day-quit">Выйти</a>';
+	this.openDialog(date,html,footer);
 
 }
 interface=new interface();
 
 $(function(){	
+	$('.b-datepicker').datepicker();;
+	
 	shri.ini();
 	interface.dialogPos();
-	$('.b-day__edit').click(function(){
+	$('.b-day__edit').live('click',function(){
 		interface.editDay($(this).parent().data('day'));
 		return false;
 	});
@@ -327,8 +350,12 @@ $(function(){
 		return false;
 	});
 
+	$('.b-save-day-quit').live('click',function(){
+		interface.closeDialog();
+		return false;
+	});
 	$('.b-lesson__link').live('click',function(){
-		var id = $(this).parent().data('day');
+		var id = $(this).data('id');
 		interface.showDay(id);
 		return false;
 	});
@@ -364,6 +391,12 @@ $(function(){
 			arr.push(shri.reserialize($(form).serializeObject()));
 		});
 		shri.saveDay($(this).data('id'),arr);
+	});
+
+	$('.b-edit-lesson__delete-idea').live('click',function(){
+		var $this=$(this);
+		if($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-idea').length>1)
+			$this.parents('tr').remove();
 	});
 
 	shortcut.add("Ctrl+left",function() {
