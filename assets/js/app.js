@@ -36,7 +36,7 @@ function shortUrl(url){
 
 function deleteItemFromArray(id,array){
 	var newArr=new Array();
-	for (var i = array.length - 1; i >= 0; i--) {
+	for (var i = 0; i <= array.length - 1; i++) {
 		if(i!=id)
 			newArr.push(array[i]);
 	}
@@ -202,13 +202,33 @@ shri.prototype.buildSchedule=function(){
 				console.log(this);
 				//console.log(ui.draggable);
 				var date = $(this).html()+'.'+($(this).parent().data('month')+1)+'.'+$(this).parent().data('year');
-				if(confirm('Перенести лекцию на ' + date+'?')){
+				//if(confirm('Перенести лекцию на ' + date+'?')){
 					if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
 						shri.buildSchedule();
+					}else{
+						$(ui.draggable).css('left','auto').css('top','auto');
 					}
-				}else{
-					$(ui.draggable).css('left','auto').css('top','auto').css('position','static');
-				}
+				/*}else{
+					$(ui.draggable).css('left','auto').css('top','auto');
+				}*/
+			}
+	});
+	$('.b-day').droppable({
+			accept: ".b-lesson__time",
+			activeClass: "mega-test",
+			drop: function( event, ui ) {
+				var date = $(this).find('.b-day__date').html();
+				if(date!=shri.schedule[$(ui.draggable).data('day')][0].date){
+					//if(confirm('Перенести лекцию на ' + date+'?')){
+						if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
+							shri.buildSchedule();
+						}
+					}else{
+						$(ui.draggable).css('left','auto').css('top','auto');
+					}
+				/*}else{
+					$(ui.draggable).css('left','auto').css('top','auto');
+				}*/
 			}
 	});
 	
@@ -232,6 +252,19 @@ shri.prototype.changeLectionDay = function(day,lection,date) {
 		};
 	};
 	//не нашли
+	this.schedule.push([schedule[day][lection]]);
+	this.schedule[this.schedule.length-1][0].date=date;
+	this.deleteLectionFromDay(day,lection);
+	this.schedule.sort(function(a,b){
+		console.log(a);
+		a=a[0].date.split('.');
+		b=b[0].date.split('.');
+		a=a[2]+a[1]+a[0];
+		b=b[2]+b[1]+b[0];
+		return parseInt(a)-parseInt(b);
+	});
+	
+	//localStorage.setItem('shri',JSON.stringify(this.schedule));
 	return true;
 
 };

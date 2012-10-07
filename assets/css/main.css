@@ -57,6 +57,7 @@ a:active{
 	margin: 0 auto;
 }
 .b-day {
+	border:1px solid transparent;
 	position: relative;
 	 background: url('../img/bg2.png');
 	margin: 40px 0;
@@ -137,6 +138,7 @@ a:active{
     margin: 0 20px;
     zoom: 1;
     *display: inline;
+    cursor:move;
 }
 .b-lesson__name{
 	border: none;
@@ -322,8 +324,8 @@ margin: 10px;
 .b-edit-lesson__input{
 	width: 98%;
 }
-.b-datepicker{
-	display: none;
+.b-datepicker-toggle{
+	display: block;
 	position: fixed;
 	top:30px;
 }
@@ -331,4 +333,7 @@ margin: 10px;
 	background: red;
 	z-index: 3;
 	
+}
+.mega-test{
+	border: 1px solid yellow;
 }
