@@ -34,6 +34,14 @@ function shortUrl(url){
 	return url[0];
 }
 
+function deleteItemFromArray(id,array){
+	var newArr=new Array();
+	for (var i = array.length - 1; i >= 0; i--) {
+		if(i!=id)
+			newArr.push(array[i]);
+	}
+	return newArr;
+}
 
 function Today(){
 	return new Date (new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
@@ -56,6 +64,27 @@ function date(text){
 function shri(){
 	this.version='alpha';
 	this.schedule=undefined;
+}
+//lection={}
+shri.prototype.addLectionToDay = function(lection,day) {
+	var lecTime=parseInt(lection.time.replace(':',''));
+	var schedule = this.schedule
+	var dayArr=schedule[day];
+	lection.date=schedule[day][0].date;
+	dayArr.push(lection);
+	var newArr=dayArr.sort(function(a,b){
+		a=parseInt(a.date.replace(':',''));
+		b=parseInt(b.date.replace(':',''));
+		return a-b;
+	});
+	console.log(newArr);
+	this.schedule[day]=newArr;
+}
+shri.prototype.deleteLectionFromDay = function(day,lection) {
+	var dayArr=this.schedule[day];
+	dayArr=deleteItemFromArray(lection,dayArr);
+	this.schedule[day]=dayArr;
+	//TODO localstorage
 }
 //TODO Break
 shri.prototype.today = function() {
@@ -140,7 +169,7 @@ shri.prototype.import = function(text) {
 	localStorage.setItem('shri', JSON.stringify(schedule));
 	console.log('import done');
 }
-
+//TODO поменять все парентс на data-id, data-id поменять на data-day
 shri.prototype.buildSchedule=function(){
 	console.log('building schedule');
 	var schedule=this.schedule;
@@ -148,7 +177,7 @@ shri.prototype.buildSchedule=function(){
 	for (var i = 0; i <= schedule.length - 1; i++) {
 		html+='<div class="b-day" data-day="'+i+'"><img class="b-day__edit" src="assets/img/pencil.png"><div class="b-day__date">'+schedule[i][0].date+'</div>';
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
-			html+='<div class="b-lesson"><div class="b-lesson__time">'+schedule[i][j].time+
+			html+='<div class="b-lesson"><div data-day="'+i+'" data-lection="'+j+'" class="b-lesson__time">'+schedule[i][j].time+
 			'</div><div class="b-lesson__name">'+schedule[i][j].theme+' - <i>'+schedule[i][j].lector.name+'</i></div></div>';
 		}
 		html+='<a href="#" class="b-button b-lesson__link" data-id="'+i+'">Посмотреть</a></div>';
@@ -162,15 +191,42 @@ shri.prototype.buildSchedule=function(){
 			accept: ".b-lesson__time",
 			activeClass: "mega-test",
 			drop: function( event, ui ) {
-				console.log(ui);
-				console.log(ui.draggable);
-				console.log(event);
-				alert($(this).html());
+				console.log(this);
+				//console.log(ui.draggable);
+				var date = $(this).html()+'.'+($(this).parent().data('month')+1)+'.'+$(this).parent().data('year');
+				if(confirm('Перенести лекцию на ' + date+'?')){
+					if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
+						shri.buildSchedule();
+					}
+				}else{
+					$(ui.draggable).css('left','auto').css('top','auto').css('position','static');
+				}
 			}
 	});
 	
 	console.log('building schedule done');
 }
+shri.prototype.changeLectionDay = function(day,lection,date) {
+	console.log('changing day');
+	var schedule = this.schedule;
+	//если переносят в тот же день
+	if(schedule[day][lection].date==date)
+		return false;
+	//ищем существующий день
+	for (var i = 0; i <= schedule.length - 1; i++) {
+
+		for (var j = 0; j <= schedule[i].length - 1; j++) {
+			if(schedule[i][j].date==date){
+				shri.addLectionToDay(schedule[day][lection],i);
+				shri.deleteLectionFromDay(day,lection);
+				return true;
+			}
+		};
+	};
+	//не нашли
+	return true;
+
+};
 shri.prototype.reserialize = function(obj) {
 	obj.lector=new Object;
 	obj.lector.name=obj['lector.name'];
@@ -302,12 +358,12 @@ interface=new interface();
 
 $(function(){	
 	$.datepicker.setDefaults($.datepicker.regional['ru']);
-  	
-
-		$('.b-datepicker').datepicker();
-
-
-	
+  	$('.b-datepicker').datepicker();
+	$('.b-lesson__time').live('mousedown',function(){
+		$('.b-datepicker').show();
+	}).live('mouseup',function(){
+		setTimeout(function(){$('.b-datepicker').hide()},100);
+	});
 	shri.ini();
 	interface.dialogPos();
 	$('.b-day__edit').live('click',function(){

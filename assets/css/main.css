@@ -323,8 +323,8 @@ margin: 10px;
 	width: 98%;
 }
 .b-datepicker{
-	position: absolute;
-	top:0;
+	position: fixed;
+	top:30px;
 }
 .ui-draggable-dragging{
 	background: red;
