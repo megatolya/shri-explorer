@@ -46,7 +46,7 @@ function deleteItemFromArray(id,array){
 function Today(){
 	return new Date (new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
 }
-function getDateOfText(text){
+function getDateOfTextDate(text){
 	//15.09.2012
 	text = trim(text);
 	var arr=text.split('.');
@@ -59,6 +59,12 @@ function getDateOfText(text){
 	var date = new Date(year,month-1,day);
 	return date;
 }
+function getDateOfTextTime(text){
+	//13:00
+	text = trim(text);
+	var arr = text.split(':');
+	return new Date(0,0,0,arr[0],arr[1]);
+}
 
 //компонент, отвечающий за данные
 function shri(){
@@ -66,17 +72,18 @@ function shri(){
 	this.schedule=undefined;
 }
 //lection={}
+shri.prototype.sortByTime = function(a,b){
+		a=getDateOfTextTime(a.time);
+		b=getDateOfTextTime(b.time);
+		return a.valueOf()-b.valueOf();
+}
 shri.prototype.addLectionToDay = function(lection,day) {
 	var lecTime=parseInt(lection.time.replace(':',''));
 	var schedule = this.schedule
 	var dayArr=schedule[day];
 	lection.date=schedule[day][0].date;
 	dayArr.push(lection);
-	var newArr=dayArr.sort(function(a,b){
-		a=parseInt(a.time.replace(':',''));
-		b=parseInt(b.time.replace(':',''));
-		return a-b;
-	});
+	var newArr=dayArr.sort(this.sortByTime);
 	this.schedule[day]=newArr;
 	localStorage.setItem('shri', JSON.stringify(this.schedule));
 }
@@ -103,7 +110,7 @@ shri.prototype.today = function() {
 	for (var i = schedule.length - 1; i >= 0; i--) {
 		var day=schedule[i]
 		for (var j = day.length - 1; j >= 0; j--) {
-			if(getDateOfText(day[j].date).valueOf()==today){
+			if(getDateOfTextDate(day[j].date).valueOf()==today){
 				
 				return i;
 			}
@@ -241,8 +248,8 @@ shri.prototype.changeLectionDay = function(day,lection,date) {
 	this.schedule[this.schedule.length-1][0].date=date;
 	this.deleteLectionFromDay(day,lection);
 	this.schedule.sort(function(a,b){
-		a=getDateOfText(a[0].date); 
-		b=getDateOfText(b[0].date);
+		a=getDateOfTextDate(a[0].date); 
+		b=getDateOfTextDate(b[0].date);
 		
 		return parseInt(a.valueOf())-parseInt(b.valueOf());
 	});
