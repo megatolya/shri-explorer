@@ -46,7 +46,7 @@ function deleteItemFromArray(id,array){
 function Today(){
 	return new Date (new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
 }
-function date(text){
+function getDateOfText(text){
 	//15.09.2012
 	text = trim(text);
 	var arr=text.split('.');
@@ -80,16 +80,21 @@ shri.prototype.addLectionToDay = function(lection,day) {
 	this.schedule[day]=newArr;
 	localStorage.setItem('shri', JSON.stringify(this.schedule));
 }
+shri.prototype.deleteDay = function(id) {
+	this.schedule = deleteItemFromArray(id,this.schedule);
+	localStorage.setItem('shri', JSON.stringify(this.schedule));
+};
 shri.prototype.deleteLectionFromDay = function(day,lection) {
+	console.log(this.schedule[day]);
 	var dayArr=this.schedule[day];
-	dayArr=deleteItemFromArray(lection,dayArr);
-	if(dayArr.length==0){
+	if(dayArr.length==1){
 		this.schedule=deleteItemFromArray(day,this.schedule);
 	}else{
-		this.schedule[day]=dayArr;
+		this.schedule[day]=deleteItemFromArray(lection,dayArr);
 	}
 	localStorage.setItem('shri', JSON.stringify(this.schedule));
 	//TODO localstorage
+	//TODO func localStorage.setItem('shri', JSON.stringify(this.schedule));
 }
 //TODO Break
 shri.prototype.today = function() {
@@ -98,7 +103,7 @@ shri.prototype.today = function() {
 	for (var i = schedule.length - 1; i >= 0; i--) {
 		var day=schedule[i]
 		for (var j = day.length - 1; j >= 0; j--) {
-			if(date(day[j].date).valueOf()==today){
+			if(getDateOfText(day[j].date).valueOf()==today){
 				
 				return i;
 			}
@@ -189,18 +194,7 @@ shri.prototype.buildSchedule=function(){
 		revert: "invalid"
 		
 	});
-	$('.ui-state-default').droppable({
-			accept: ".b-lesson__time",
-			activeClass: "mega-test",
-			drop: function( event, ui ) {
-				var date = $(this).html()+'.'+($(this).parent().data('month')+1)+'.'+$(this).parent().data('year');
-					if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
-						shri.buildSchedule();
-					}else{
-						$(ui.draggable).css('left','auto').css('top','auto');
-					}
-			}
-	});
+	
 	$('.b-day').droppable({
 			accept: ".b-lesson__time",
 			activeClass: "mega-test",
@@ -247,11 +241,10 @@ shri.prototype.changeLectionDay = function(day,lection,date) {
 	this.schedule[this.schedule.length-1][0].date=date;
 	this.deleteLectionFromDay(day,lection);
 	this.schedule.sort(function(a,b){
-		a=a[0].date.split('.');
-		b=b[0].date.split('.');
-		a=a[2]+a[1]+a[0];
-		b=b[2]+b[1]+b[0];
-		return parseInt(a)-parseInt(b);
+		a=getDateOfText(a[0].date); 
+		b=getDateOfText(b[0].date);
+		
+		return parseInt(a.valueOf())-parseInt(b.valueOf());
 	});
 	
 	localStorage.setItem('shri',JSON.stringify(this.schedule));
@@ -271,15 +264,19 @@ shri.prototype.reserialize = function(obj) {
 	return obj;
 }
 shri.prototype.saveDay = function(id,arr) {
-	this.schedule[id]=arr;
-	localStorage.setItem('shri',JSON.stringify(this.schedule));
+	if(arr.length>0){
+		this.schedule[id]=arr;
+		localStorage.setItem('shri',JSON.stringify(this.schedule));
+	}else{
+		this.deleteDay(id);
+	}
 	shri.buildSchedule();
 }
 
 shri.prototype.ini = function() {
 
 	var schedule = localStorage.getItem('shri');
-	if(schedule!='' && schedule!=undefined && schedule!='[[]]'){
+	if(schedule!='' && schedule!=undefined && schedule!='[[]]' && schedule!='[]'){
 		this.schedule=$.parseJSON(schedule);
 		if(!this.today()){
 			$('.b-toolbar__link_name_today').removeClass('b-toolbar__link_name_today').addClass('b-link-disabled')
@@ -385,14 +382,36 @@ interface.prototype.datepickerOpen = function (time) {
 			interface.datepickerOpened=true;
 		});
 }
+interface.prototype.droppableDatepicker = function() {
+	setTimeout(function(){
+		$('.ui-state-default').droppable({
+			accept: ".b-lesson__time",
+			activeClass: "mega-test",
+			drop: function( event, ui ) {
+				var month =$(this).parent().data('month')+1;
+				if (month <10 )
+					month = '0'+month;
+				var date = $(this).html()+'.'+month+'.'+$(this).parent().data('year');
+					if(shri.changeLectionDay($(ui.draggable).data('day'),$(ui.draggable).data('lection'),date)){
+						shri.buildSchedule();
+					}else{
+						$(ui.draggable).css('left','auto').css('top','auto');
+					}
+			}
+		});
+	},100);
+	
+};
 interface.prototype.editDay = function(id) {
 	//TODO: currentDay
 	var day = shri.schedule[id];
 	var html = new String();
 	var date = day[0].date;
 	for (var i = 0; i <= day.length - 1; i++) {
-		html+='<form class="b-edit-lesson" data-id="'+i+'"><table class="i-edit-lesson">'+
-				'<tr><td width="10%">Дата</td><td colspan="2" width="80%"><input class="b-edit-lesson__input b-edit-lesson__input_name_date" name="date" value="'+date+'"></td></tr>'+
+		html+='<form class="b-edit-lesson" data-id="'+i+'">'+
+				'<input type="hidden" name="date" value="'+date+'">'+
+				'<table class="i-edit-lesson">'+
+				
 				'<tr><td>Время</td><td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="'+day[i].time+'"></td></tr>'+
 				'<tr><td colspan="3">Тема</td></tr>'+
 				'<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="'+day[i].theme+'"></td></tr>'+
@@ -421,7 +440,10 @@ interface=new interface();
 
 $(function(){	
 	$.datepicker.setDefaults($.datepicker.regional['ru']);
-  	$('.b-datepicker').datepicker();
+  	$('.b-datepicker').datepicker({
+  		onChangeMonthYear: interface.droppableDatepicker
+  	});
+  	interface.droppableDatepicker();
 	$('.b-lesson__time').live('mousedown',function(){
 		if(interface.datepickerOpened)
 			interface.datepickerOpenedByDrag=false;
@@ -432,9 +454,9 @@ $(function(){
 	$(document).mouseup(function(){
 		if(interface.datepickerOpenedByDrag)
 		setTimeout(function(){
-			interface.datepickerClose(500);
+			interface.datepickerClose(200);
 			interface.datepickerOpenedByDrag=false;
-		},1000);
+		},500);
 	});
 	$('.b-datepicker-toggle__nav-button').click(function(){
 		interface.datepickerToggle(200);
@@ -528,11 +550,14 @@ $(function(){
 	});
 
 	$('.b-save-day').live('click',function(){
-		var arr=[];
+		var arr=new Array();
+		var day =$(this).data('id');
 		$('.b-edit-lesson').each(function(k,form){
-			arr.push(shri.reserialize($(form).serializeObject()));
+			var dataModel=shri.reserialize($(form).serializeObject());
+				arr.push(dataModel);	
+			
 		});
-		shri.saveDay($(this).data('id'),arr);
+		shri.saveDay(day,arr);
 	});
 
 	$('.b-edit-lesson__delete-idea').live('click',function(){
@@ -546,11 +571,11 @@ $(function(){
 			$this.parents('tr').remove();
 	});
 	$('.b-edit-lesson__add-idea').live('click',function(){
-		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea"></td></tr>');
+		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>');
 		return false;
 	});
 	$('.b-edit-lesson__add-link').live('click',function(){
-		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links"></td></tr>');
+		$(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>');
 		return false;
 	});
 
@@ -565,11 +590,10 @@ $(function(){
 	});
 
 	
-	
 
 });
 $(window).resize(function(){
 	interface.dialogPos();
 });
 /* TODO function today rename*/
-/* TODO редактирвание отдельных лекций */
+
