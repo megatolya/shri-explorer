@@ -19,14 +19,6 @@ $.fn.serializeObject = function()
 function trim (str) { 
 	return str.replace(/^\s+|\s+$/g, ""); 
 }
-//проверка на localStorage
-function isLocalStorageAvailable() {
-    try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-        return false;
-    }
-}
 //полный url в домен
 //TODO: регулярка
 function shortUrl(url){
@@ -299,11 +291,30 @@ shri.prototype.ini = function() {
 shri.prototype.export = function() {
 	var schedule=this.schedule;
 	var res=new String();
-	for (var i = 0; i <= schedule.length - 1; i++) {
-		if(i!=0)res+= '#\n';
+	var days = schedule.length - 1;
+	for (var i = 0; i <= days; i++) {
 		for (var j = 0; j <= schedule[i].length - 1; j++) {
-			res+=schedule[i][j].date+ '\n';
+			var day=schedule[i][j];
+			res+=day.date+ '\n';
+			res+=day.time+ '\n';
+			res+=day.theme+ '\n';
+			res+=day.lector.name+ ' (';
+				var lectorLinks=day.lector.links.length-1;
+			for (var link = 0; link <= lectorLinks; link++) {
+				res+=day.lector.links[link]
+				if(link!=lectorLinks)
+					res+=', ';
+					
+			};
+			res+=')\n';
+			var ideas = day.idea.length - 1;
+			for (var idea = 0; idea <= ideas; idea++) {
+				res += '?: ' + day.idea[idea] +'\n';
+			};
+			res+=day.link;
 		};
+		if(i!=days)
+				res+='\n##\n';
 	};
 	return res;
 };
@@ -564,6 +575,7 @@ $(function(){
 				arr.push(dataModel);	
 			
 		});
+		arr.sort(shri.sortByTime);
 		shri.saveDay(day,arr);
 	});
 
