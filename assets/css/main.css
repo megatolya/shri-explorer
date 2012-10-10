@@ -132,7 +132,7 @@ a:active{
 	margin: 10px 0;
 }
 .b-lesson__time{
-	border: none;
+	border-bottom: 1px dashed black;
     display: -moz-inline-stack;
     display: inline-block;
     vertical-align: top;
@@ -140,6 +140,12 @@ a:active{
     zoom: 1;
     *display: inline;
     cursor:move;
+}
+.b-lesson__time:hover{
+	border-bottom: 1px solid black;
+}
+.b-lesson__time:active{
+	border-bottom: 1px solid transparent;
 }
 .b-lesson__name{
 	border: none;
@@ -360,7 +366,7 @@ top: 100px;
 right: 0;
 cursor: pointer;
 }
-.mega-test{
+.b-droppable{
 	border: 1px solid yellow;
 }
 /*TODO border-radius shadow*/
