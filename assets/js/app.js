@@ -83,6 +83,7 @@ function Lection (obj, day) {
     this.time = obj.time;
     this.lector = obj.lector;
     this.idea = obj.idea;
+    //TODO change day when moved
     this.day = day;
 }
 /**
@@ -102,6 +103,12 @@ function Shri () {
     this.version = 'alpha';
     this.schedule = undefined;
 }
+/**
+*checks validation of forms
+*
+*@param {string} selector of form(s)
+*@return {boolean} valid or not
+*/
 //TODO больше проверок :-)
 Shri.prototype.isValid = function (forms) {
     var time = /^[0-9]{0,2}[0-9]{1,2}:[0-9]{2}$/;
@@ -521,7 +528,23 @@ Interface.prototype.closeDialog = function () {
 *
 */
 Interface.prototype.newLesson = function () {
-    var html = '';
+    var html = '<form class="b-new-lesson"><table>'+
+    '<tr><td width="20%"></td><td width="70%"></td><td width="10%"></td></tr><tr><td>Дата</td>'+
+    '<td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td></tr><tr><td>Время</td>'+
+    '<td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td>'+
+    '</tr><tr><td>Тема</td><td colspan="2"><input name="theme" type="text" class="b-new-lesson__input">'+
+    '</td></tr><tr><td>Лектор</td><td colspan="2"><input type="text" class="b-new-lesson__input" name="lector.name">'+
+    '</td></tr><tr><td colspan="3">Ссылки на лектора <a href="#" class="b-new-lesson__add-link">+</a></td>'+
+    '</tr><tr><td colspan="2"><input  type="text" class="b-new-lesson__input" name="lector.links"></td>'+
+    '<td><a href="#" class="b-new-lesson__delete-link">x</a></td>'+
+    '</tr><tr><td colspan="3">Тезисы<a href="#" class="b-new-lesson__add-idea">+</a></td></tr>'+
+    '<tr><td colspan="2"><input  type="text" class="b-new-lesson__input" name="idea"></td>'+
+    '<td><a href="#" class="b-new-lesson__delete-idea">x</a></td>'+
+    '</tr><tr><td>Презентация</td><td colspan="2"><input name="link" type="text" class="b-new-lesson__input">'+
+    '</td></tr></table></form>';
+    var footer = '<a href="#" class="b-new-lesson__save">Сохранить</a> '+
+                 '<a href="#" class="b-new-lesson__quit">Выйти</a>';
+    this.openDialog('Новая лекция', html, footer);
 }
 /**
 *generates form for editting day
@@ -530,33 +553,35 @@ Interface.prototype.newLesson = function () {
 */
 Interface.prototype.editDay = function (id) {
     //TODO: currentDay
+
     var day = Shri.schedule[id];
     var html = new String();
     var date = day[0].date;
-    for (var i = 0; i <= day.length - 1; i++) {
-        html += '<form class="b-edit-lesson" data-id="' + i + '">' +
+    $(day).each(function (lectionId, lection) {
+        html += '<form class="b-edit-lesson" data-id="' + lectionId + '">' +
             '<input type="hidden" name="date" value="' + date + '">' +
             '<table class="i-edit-lesson">' +
-
-            '<tr><td>Время</td><td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="' + day[i].time + '"></td></tr>' +
+            '<tr><td>Время</td><td>'+
+            '<input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="' + lection.time + '"></td></tr>' +
             '<tr><td colspan="3">Тема</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="' + day[i].theme + '"></td></tr>' +
+            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="' + lection.theme + '"></td></tr>' +
             '<tr><td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td></tr>';
 
-        for (var j = 0; j <= day[i].idea.length - 1; j++) {
-            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="' + day[i].idea[j] + '"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
-        }
+        $(lection.idea).each(function (ideaId, idea) {
+            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="' + idea +
+            '"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
+        });
         html += '<tr><td colspan="3">Лектор</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="' + day[i].lector.name + '"></td></tr>' +
+            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="' + lection.lector.name + '"></td></tr>' +
             '<tr><td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td></tr>';
-        for (var j = 0; j <= day[i].lector.links.length - 1; j++) {
-            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="' + day[i].lector.links[j] + '"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
-        }
-        ;
+        $(lection.lector.links).each(function(linkId, link) {
+            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="' + link +
+            '"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
+        });
         html += '<tr><td colspan="3">Презентация</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="' + day[i].link + '"></td></tr>' +
+            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="' + lection.link + '"></td></tr>' +
             '</table></form>';
-    }
+    });
     var footer = '<a href="#" class="b-save-day" data-id="' + id + '">Сохранить</a> ' +
         '<a href="#" class="b-lesson__link" data-id="' + id + '">Показать день</a> ' +
         '<a href="#" class="b-save-day-quit">Выйти</a>';
@@ -587,7 +612,8 @@ Interface.prototype.showDay = function (id) {
         html += '</div>';
     });
     html += '<div class="b-dialog-win__nav"><a onclick="return false;" class="b-dialog-win__nav_target_prev" href="' + (id - 1) + '">←</a>  Ctrl  ' +
-        '<a class="b-dialog-win__nav_target_next" href="' + (parseInt(id) + 1) + '">→</a> <a class="b-dialog-win__nav_target_edit" href="' + (parseInt(id)) + '">Изменить</a></div>';
+        '<a class="b-dialog-win__nav_target_next" href="' + (parseInt(id) + 1) + '">→</a> <a class="b-dialog-win__nav_target_edit" href="'
+        + (parseInt(id)) + '">Изменить</a></div>';
     Interface.openDialog(day[0].date, html);
 }
 /**
@@ -711,7 +737,8 @@ $(function () {
             return false;
            })
            .on('click', '.b-toolbar__link_name_import', function() {
-            var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
+            var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p>'+
+            '<textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
             Interface.openDialog('Импорт', html);
             return false;
            })
@@ -747,12 +774,12 @@ $(function () {
                 Interface.showDay(id);
             return false;
            })
-           .on('click', '.b-dialog-win__nav_target_edit' ,function () {
-            var id = $(this).attr('href');
-            Interface.editDay(id);
-            return false;
-           })
-           .on('click', '.b-save-day', function () {
+       .on('click', '.b-dialog-win__nav_target_edit' ,function () {
+        var id = $(this).attr('href');
+        Interface.editDay(id);
+        return false;
+       })
+       .on('click', '.b-save-day', function () {
             var arr = new Array();
             var day = $(this).data('id');
 
@@ -765,20 +792,19 @@ $(function () {
                 arr.sort(Shri.sortByTime);
                 Shri.saveDay(day, arr);
             }
-            
-        })
+         })
         .on('click', '.b-dialog-win__close-btn' , function () {
             Interface.closeDialog();
             return false;
         })
-           .on('click', '.b-edit-lesson__delete-idea', function () {
+        .on('click', '.b-edit-lesson__delete-idea', function () {
             var $this = $(this);
-            if ($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-idea').length > 1)
+            if ($this.parents('.b-edit-lesson').find('.b-edit-lesson__delete-idea').length > 1)
                 $this.parents('tr').remove();
         })
         .on('click', '.b-edit-lesson__delete-link', function () {
             var $this = $(this);
-            if ($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-link').length > 1)
+            if ($this.parents('.b-edit-lesson').find('.b-edit-lesson__delete-link').length > 1)
                 $this.parents('tr').remove();
         })
         .on('click', '.b-edit-lesson__add-idea', function () {
@@ -793,9 +819,35 @@ $(function () {
                 '<a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>');
             return false;
         })
+        .on('click', '.b-new-lesson__add-link', function () {
+            $(this).parents('tr').after('<tr><td colspan="2">'+
+                '<input class="b-new-lesson__input" name="lector.links"></td><td>'+
+                '<a href="#" class="b-new-lesson__delete-link">x</a></td></tr>');
+            return false;
+        })
+        .on('click', '.b-new-lesson__add-idea', function () {
+            $(this).parents('tr').after('<tr><td colspan="2">'+
+                '<input class="b-edit-lesson__input" name="idea"></td>'+
+                '<td><a href="#" class="b-new-lesson__delete-idea">x</a></td></tr>');
+            return false;
+        })
+        .on('click', '.b-new-lesson__delete-link', function () {
+            var $this = $(this);
+            if ($this.parents('.b-new-lesson').find('.b-new-lesson__delete-link').length > 1)
+                $this.parents('tr').remove();
+        })
+        .on('click', '.b-new-lesson__delete-idea', function () {
+            var $this = $(this);
+            if ($this.parents('.b-new-lesson').find('.b-new-lesson__delete-idea').length > 1)
+                $this.parents('tr').remove();
+        })
         .on('click', '.b-lesson__link', function () {
             var id = $(this).data('id');
             Interface.showDay(id);
+            return false;
+        })
+        .on('click', '.b-new-lesson__quit', function() {
+            Interface.closeDialog();
             return false;
         });
 
