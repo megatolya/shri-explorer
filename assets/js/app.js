@@ -1,7 +1,6 @@
 /**
 *serializes form to object
 *
-*@this {form}
 *@return {object} serialized form object
 */
 // TODO reserealize add
