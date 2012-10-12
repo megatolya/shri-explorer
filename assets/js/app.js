@@ -47,7 +47,7 @@ function shortUrl(url) {
 *@return {date} today
 */
 function Today() {
-	var today = new Date();
+    var today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), today.getDate());
 }
 /**
@@ -82,11 +82,28 @@ function getDateOfTextTime(text) {
 }
 
 /**
+*lection's class
+*
+*@this {Lection}
+*/
+function Lection (obj, day) {
+    this.date = obj.date;
+    this.theme = obj.theme;
+    this.link = obj.link;
+    this.time = obj.time;
+    this.lector = obj.lector;
+    this.idea = obj.idea;
+    this.day = day;
+}
+Lection.prototype.Day = function() {
+    return Shri.schedule[this.day];
+};
+/**
  * Works with data
  *
  * @this {Shri}
  */
-function Shri() {
+function Shri () {
     this.version = 'alpha';
     this.schedule = undefined;
 }
@@ -191,6 +208,7 @@ Shri.prototype.import = function (text) {
                 //date
                 if (countStr == 0) {
                     schedule[dayId][countLection].date = currentStr;
+                    schedule[dayId][countLection].day = dayId;
                 }
                 //time
                 if (countStr == 1) {
@@ -236,8 +254,15 @@ Shri.prototype.import = function (text) {
         if (schedule[dayId][countLection].time == undefined)
             schedule[dayId].splice(countLection, 1)
     });
-    this.schedule = schedule;
-    localStorage.setItem('Shri', JSON.stringify(schedule));
+    var newSchedule=new Array();
+    $(schedule).each(function (dayId,day) {
+        arr = $.map(day, function (lection){
+            return new Lection(lection, dayId);
+        });
+        newSchedule[dayId]=arr;
+    });
+    this.schedule = newSchedule;
+    localStorage.setItem('Shri', JSON.stringify(newSchedule));
 }
 //TODO поменять все парентс на data-id, data-id поменять на data-day
 /**
@@ -339,7 +364,7 @@ Shri.prototype.changeLectionDay = function (oldDayId, oldLectionId, date) {
 *@param {object} form obj
 *@return {object} lection obj
 */
-Shri.prototype.reserialize = function (obj) {
+Shri.prototype.reserialize = function (obj, day) {
     obj.lector = new Object;
     obj.lector.name = obj['lector.name'];
     obj.lector.links = obj['lector.links'];
@@ -349,6 +374,7 @@ Shri.prototype.reserialize = function (obj) {
         obj.idea = new Array(obj.idea);
     delete obj['lector.links'];
     delete obj['lector.name'];
+    obj = new Lection(obj, day);
     return obj;
 }
 /**
@@ -372,7 +398,16 @@ Shri.prototype.saveDay = function (id, arr) {
 Shri.prototype.ini = function () {
     var schedule = localStorage.getItem('Shri');
     if (schedule != '' && schedule != undefined && schedule != '[[]]' && schedule != '[]') {
-        this.schedule = $.parseJSON(schedule);
+        schedule = $.parseJSON(schedule);
+        var newSchedule = new Array;
+        $(schedule).each(function (dayId, day) {
+            newSchedule[dayId] = $.map(day, function (lection) {
+                return new Lection(lection, dayId);
+            });
+            
+        });
+        this.schedule = newSchedule;
+
         if (this.today()===false) {
             $('.b-toolbar__link_name_today').removeClass('b-toolbar__link_name_today').addClass('b-link-disabled')
         }
@@ -386,7 +421,7 @@ Shri.prototype.ini = function () {
 *takes app's schedule and make shri format from it
 *
 *@return {text} shri formatted text
-*/		
+*/        
 Shri.prototype.export = function () {
     var schedule = this.schedule;
     var res = new String();
@@ -466,7 +501,7 @@ Interface.prototype.closeDialog = function () {
 *
 */
 Interface.prototype.newLesson = function () {
-	var html = '';
+    var html = '';
 }
 /**
 *generates form for editting day
@@ -600,13 +635,12 @@ Interface.prototype.droppableDatepicker = function () {
             }
         });
     }, 100);
-
-}
+};
 
 Interface = new Interface();
 
 $(function () {
-	$(document).mouseup(function () {
+    $(document).mouseup(function () {
         if (Interface.datepickerOpenedByDrag)
             setTimeout(function () {
                 Interface.datepickerClose(200);
@@ -626,135 +660,138 @@ $(function () {
     var $dialogWin = $('.b-dialog-win');
     var $datepickerToggle = $('.b-datepicker-toggle');
     $schedule
-    	.on('mousedown', '.b-lesson__time',function(){
-	    	if (Interface.datepickerOpened)
-	            Interface.datepickerOpenedByDrag = false;
-	        else
-	            Interface.datepickerOpenedByDrag = true;
-	        Interface.datepickerOpen(200);
-   	 	})
-    	.on('click', '.b-day__edit',function () {
-	        Interface.editDay($(this).parent().data('day'));
-	        return false;
-    	})
-    	.on('click', '.b-lesson__link', function () {
-	        var id = $(this).data('id');
-	        Interface.showDay(id);
-	        return false;
-    	});
-    	
+        .on('mousedown', '.b-lesson__time',function(){
+            if (Interface.datepickerOpened)
+                Interface.datepickerOpenedByDrag = false;
+            else
+                Interface.datepickerOpenedByDrag = true;
+            Interface.datepickerOpen(200);
+            })
+        .on('click', '.b-day__edit',function () {
+            Interface.editDay($(this).parent().data('day'));
+            return false;
+        })
+        .on('click', '.b-lesson__link', function () {
+            var id = $(this).data('id');
+            Interface.showDay(id);
+            return false;
+        });
+        
    
     $toolbar
-    	.on('click', '.b-toolbar__link_name_export', function() {
-	    	var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>';
-	        Interface.openDialog('Экспорт', html);
-	        $('.b-export-textarea').val(Shri.export()).select();
-	        return false;
-    	})
-    	.on('click', '.b-toolbar__link_name_manual', function () {
-	        var html = '<p>Здесь будет справка</p>';
-	        Interface.openDialog('Справочная', html);
-	        return false;
-   		})
-   		.on('click', '.b-toolbar__link_name_import', function() {
-			var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
-			Interface.openDialog('Импорт', html);
-			return false;
-   		})
-   		.on('click', '.b-toolbar__link_name_new-lesson', function() {
-   			Interface.newLesson();
-   		})
+        .on('click', '.b-toolbar__link_name_export', function() {
+            var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>';
+            Interface.openDialog('Экспорт', html);
+            $('.b-export-textarea').val(Shri.export()).select();
+            return false;
+        })
+        .on('click', '.b-toolbar__link_name_manual', function () {
+            var html = '<p>Здесь будет справка</p>';
+            Interface.openDialog('Справочная', html);
+            return false;
+           })
+           .on('click', '.b-toolbar__link_name_import', function() {
+            var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
+            Interface.openDialog('Импорт', html);
+            return false;
+           })
+           .on('click', '.b-toolbar__link_name_new-lesson', function() {
+               Interface.newLesson();
+           })
         .on('click', '.b-toolbar__link_name_today',function(){
             Interface.showDay(Shri.today());
             return false;
         });
 
-	$dialogWin
-		.on('click', '.b-import-btn', function () {
-	        var text = $('.b-import-textarea').val();
-	        Shri.import(text);
-	        Shri.buildSchedule();
-	        Interface.closeDialog();
-	        return false;
-	    })
-	    .on('click', '.b-save-day-quit', function () {
-	        Interface.closeDialog();
-	        return false;
-   		})
-   		.on('click', '.b-dialog-win__nav_target_prev', function () {
-	        var id = $(this).attr('href');
-	        if (id >= 0 && id <= Shri.schedule.length)
-	            Interface.showDay(id);
-	        return false;
-    	})
-    	.on('click', '.b-dialog-win__nav_target_next', function () {
-	        var id = $(this).attr('href');
-	        if (id >= 0 && id < Shri.schedule.length)
-	            Interface.showDay(id);
-	        return false;
-   		})
-   		.on('click', '.b-dialog-win__nav_target_edit' ,function () {
-	        var id = $(this).attr('href');
-	        Interface.editDay(id);
-	        return false;
-   		})
-   		.on('click', '.b-save-day', function () {
-	        var arr = new Array();
-	        var day = $(this).data('id');
-	        $('.b-edit-lesson').each(function (k, form) {
-	            var dataModel = Shri.reserialize($(form).serializeObject());
-	            arr.push(dataModel);
+    $dialogWin
+        .on('click', '.b-import-btn', function () {
+            var text = $('.b-import-textarea').val();
+            Shri.import(text);
+            Shri.buildSchedule();
+            Interface.closeDialog();
+            return false;
+        })
+        .on('click', '.b-save-day-quit', function () {
+            Interface.closeDialog();
+            return false;
+           })
+           .on('click', '.b-dialog-win__nav_target_prev', function () {
+            var id = $(this).attr('href');
+            if (id >= 0 && id <= Shri.schedule.length)
+                Interface.showDay(id);
+            return false;
+        })
+        .on('click', '.b-dialog-win__nav_target_next', function () {
+            var id = $(this).attr('href');
+            if (id >= 0 && id < Shri.schedule.length)
+                Interface.showDay(id);
+            return false;
+           })
+           .on('click', '.b-dialog-win__nav_target_edit' ,function () {
+            var id = $(this).attr('href');
+            Interface.editDay(id);
+            return false;
+           })
+           .on('click', '.b-save-day', function () {
+            var arr = new Array();
+            var day = $(this).data('id');
+            $('.b-edit-lesson').each(function (k, form) {
+                var dataModel = Shri.reserialize($(form).serializeObject(),day);
+                arr.push(dataModel);
 
-	        });
-	        arr.sort(Shri.sortByTime);
-	        Shri.saveDay(day, arr);
-    	})
-    	.on('click', '.b-dialog-win__close-btn' , function () {
-	        Interface.closeDialog();
-	        return false;
-    	})
-   		.on('click', '.b-edit-lesson__delete-idea', function () {
-			var $this = $(this);
-			if ($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-idea').length > 1)
-			    $this.parents('tr').remove();
-    	})
-    	.on('click', '.b-edit-lesson__delete-link', function () {
-	        var $this = $(this);
-	        if ($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-link').length > 1)
-	            $this.parents('tr').remove();
-    	})
-    	.on('click', '.b-edit-lesson__add-idea', function () {
-	        $(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>');
-	        return false;
-    	})
-  		.on('click', '.b-edit-lesson__add-link', function () {
-	        $(this).parents('tr').after('<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>');
-	        return false;
-    	})
-    	.on('click', '.b-lesson__link', function () {
-	        var id = $(this).data('id');
-	        Interface.showDay(id);
-	        return false;
-    	});
+            });
+            arr.sort(Shri.sortByTime);
+            Shri.saveDay(day, arr);
+        })
+        .on('click', '.b-dialog-win__close-btn' , function () {
+            Interface.closeDialog();
+            return false;
+        })
+           .on('click', '.b-edit-lesson__delete-idea', function () {
+            var $this = $(this);
+            if ($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-idea').length > 1)
+                $this.parents('tr').remove();
+        })
+        .on('click', '.b-edit-lesson__delete-link', function () {
+            var $this = $(this);
+            if ($this.parents('.i-edit-lesson').find('.b-edit-lesson__delete-link').length > 1)
+                $this.parents('tr').remove();
+        })
+        .on('click', '.b-edit-lesson__add-idea', function () {
+            $(this).parents('tr').after('<tr><td colspan="2">'+
+                '<input class="b-edit-lesson__input" name="idea"></td>'+
+                '<td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>');
+            return false;
+        })
+          .on('click', '.b-edit-lesson__add-link', function () {
+            $(this).parents('tr').after('<tr><td colspan="2">'+
+                '<input class="b-edit-lesson__input" name="lector.links"></td><td>'+
+                '<a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>');
+            return false;
+        })
+        .on('click', '.b-lesson__link', function () {
+            var id = $(this).data('id');
+            Interface.showDay(id);
+            return false;
+        });
 
-	$datepickerToggle
-    //TODO wtf
-		.on('click', '.ui-state-default', function () {
-            alert();
-			$this = $(this);
-			var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
-			var id = Shri.getDayByDate(date);
-			if (id)
-				Interface.showDay(id);
-			return false;
-		})
-		.on('click', '.b-datepicker-toggle__nav-button', function () {
-			Interface.datepickerToggle(200);
-		})
+    $datepickerToggle
+        .on('click', '.ui-state-default', function () {
+            $this = $(this);
+            var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
+            var id = Shri.getDayByDate(date);
+            if (id)
+                Interface.showDay(id);
+            return false;
+        })
+        .on('click', '.b-datepicker-toggle__nav-button', function () {
+            Interface.datepickerToggle(200);
+        })
 
+    $('.ui-state-default').live('click', function () {alert()});
     //TODO on
     $('.b-link-disabled').click(function () {
-    	alert();
+        alert();
         return false;
     });
 
