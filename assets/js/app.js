@@ -40,21 +40,7 @@ function shortUrl(url) {
     url = url.replace('http://', '').replace('https://', '').replace('ftp://', '').replace('//', '').replace('#', '/').replace('?', '/').split('/');
     return url[0];
 }
-/**
-*deletes item from array
-*
-*@param {integer} id of item
-*@param {array} array
-*@return {array} new array
-*/
-function deleteItemFromArray(id, array) {
-    var newArr = new Array();
-    for (var i = 0; i <= array.length - 1; i++) {
-        if (i != id)
-            newArr.push(array[i]);
-    }
-    return newArr;
-}
+
 /**
 *returns today date 
 *
@@ -125,7 +111,7 @@ Shri.prototype.sortByTime = function (a, b) {
 *Adds lection to day
 *
 *@param {object} lection
-*@param {integer} day
+*@param {integer} day id
 */
 Shri.prototype.addLectionToDay = function (lection, day) {
     var lecTime = parseInt(lection.time.replace(':', ''));
@@ -140,25 +126,25 @@ Shri.prototype.addLectionToDay = function (lection, day) {
 /**
 *deletes day
 *
-*@param {integer} id
+*@param {integer} day id
 */
 Shri.prototype.deleteDay = function (id) {
-    this.schedule = deleteItemFromArray(id, this.schedule);
+    this.schedule = split(id, this.schedule);
     localStorage.setItem('Shri', JSON.stringify(this.schedule));
 };
 /**
 *deletes lection by id of lection and day
 *
-*@param {integer} day
-*@param {integer} lection
+*@param {integer} day id
+*@param {integer} lection id
 */
 Shri.prototype.deleteLectionFromDay = function (day, lection) {
     console.log(this.schedule[day]);
     var dayArr = this.schedule[day];
     if (dayArr.length == 1) {
-        this.schedule = deleteItemFromArray(day, this.schedule);
+        this.schedule.splice(day, 1);
     } else {
-        this.schedule[day] = deleteItemFromArray(lection, dayArr);
+        this.schedule[day].splice(lection, 1);
     }
     localStorage.setItem('Shri', JSON.stringify(this.schedule));
     //TODO localstorage
@@ -172,16 +158,15 @@ Shri.prototype.deleteLectionFromDay = function (day, lection) {
 Shri.prototype.today = function () {
     var today = Today().valueOf();
     var schedule = this.schedule;
-    for (var i = schedule.length - 1; i >= 0; i--) {
-        var day = schedule[i]
-        for (var j = day.length - 1; j >= 0; j--) {
-            if (getDateOfTextDate(day[j].date).valueOf() == today) {
-
-                return i;
+    var todayId = 0;
+    $(schedule).each(function (dayId, day) {
+        $(day).each(function (lectionId, lection) {
+            if (getDateOfTextDate(lection.date).valueOf() == today) {
+                todayId = dayId;
             }
-        }
-    }
-    return false;
+        });
+    });
+    return todayId;
 }
 /**
 *imports text with shri format to app data
@@ -192,64 +177,65 @@ Shri.prototype.import = function (text) {
     var arr = text.split('##');
     var countDays = 0;
     var schedule = new Array();
-    for (var i = 0; i <= arr.length - 1; i++) {
-        schedule[i] = new Array();
-        var arr2 = arr[i].split('\n');
+    $(arr).each(function (dayId, day) {
+        schedule[dayId] = new Array();
+        var strings = day.split('\n');
         var countStr = 0;
         var countLection = 0;
         var countIdea = 0;
-        schedule[i][countLection] = new Object();
-        for (var j = 0; j <= arr2.length - 1; j++) {
-            var currentStr = trim(arr2[j]);
+        schedule[dayId][countLection] = new Object();
+        $(strings).each(function (line, string) {
+            var currentStr = trim(string);
             if (currentStr != '') {
+                //TODO Switch
                 //date
                 if (countStr == 0) {
-                    schedule[i][countLection].date = currentStr;
+                    schedule[dayId][countLection].date = currentStr;
                 }
                 //time
                 if (countStr == 1) {
-                    schedule[i][countLection].time = currentStr;
+                    schedule[dayId][countLection].time = currentStr;
                 }
                 //theme
                 if (countStr == 2) {
-                    schedule[i][countLection].theme = currentStr;
+                    schedule[dayId][countLection].theme = currentStr;
                 }
                 //lector
                 if (countStr == 3) {
-                    schedule[i][countLection].lector = new Object();
+                    schedule[dayId][countLection].lector = new Object();
                     var split = currentStr.split('(');
                     var linksStr = split[1];
                     linksStr = trim(linksStr.replace(')', '').replace(' ', ''));
-                    schedule[i][countLection].lector.name = trim(split[0]);
-                    schedule[i][countLection].lector.links = linksStr.split(',');
+                    schedule[dayId][countLection].lector.name = trim(split[0]);
+                    schedule[dayId][countLection].lector.links = linksStr.split(',');
                 }
                 //idea
                 if (countStr > 3) {
-                    if (trim(arr2[j]).indexOf('?:') + 1) {
-                        if (schedule[i][countLection].idea == undefined)
-                            schedule[i][countLection].idea = new Array();
+                    if (trim(string).indexOf('?:') + 1) {
+                        if (schedule[dayId][countLection].idea == undefined)
+                            schedule[dayId][countLection].idea = new Array();
                         currentStr = trim(currentStr.replace('?:', ''));
-                        schedule[i][countLection].idea[countIdea] = currentStr;
+                        schedule[dayId][countLection].idea[countIdea] = currentStr;
                         countIdea++;
                     }
                     //presentation link
                     else {
-                        schedule[i][countLection].link = currentStr;
-                        if (schedule[i][countLection].date == undefined)
-                            schedule[i][countLection].date = schedule[i][countLection - 1].date;
+                        schedule[dayId][countLection].link = currentStr;
+                        if (schedule[dayId][countLection].date == undefined)
+                            schedule[dayId][countLection].date = schedule[dayId][countLection - 1].date;
                         countLection++;
                         countIdea = 0;
                         countStr = 0;
-                        schedule[i][countLection] = new Object();
+                        schedule[dayId][countLection] = new Object();
                     }
                 }
                 countStr++;
             }
 
-        }
-        if (schedule[i][countLection].time == undefined)
-            schedule[i].splice(countLection, 1)
-    }
+        });
+        if (schedule[dayId][countLection].time == undefined)
+            schedule[dayId].splice(countLection, 1)
+    });
     this.schedule = schedule;
     localStorage.setItem('Shri', JSON.stringify(schedule));
 }
@@ -260,18 +246,17 @@ Shri.prototype.import = function (text) {
 Shri.prototype.buildSchedule = function () {
     var schedule = this.schedule;
     var html = new String();
-    for (var i = 0; i <= schedule.length - 1; i++) {
-        html += '<div class="b-day" data-day="' + i + '"><img class="b-day__edit" src="assets/img/pencil.png"><div class="b-day__date">' + schedule[i][0].date + '</div>';
-        for (var j = 0; j <= schedule[i].length - 1; j++) {
-            html += '<div class="b-lesson"><div data-day="' + i + '" data-lection="' + j + '" class="b-lesson__time">' + schedule[i][j].time +
-                '</div><div class="b-lesson__name">' + schedule[i][j].theme + ' - <i>' + schedule[i][j].lector.name + '</i></div></div>';
-        }
-        html += '<a href="#" class="b-button b-lesson__link" data-id="' + i + '">Посмотреть</a></div>';
-    }
+    $(schedule).each(function (dayId, day) {
+        html += '<div class="b-day" data-day="' + dayId + '"><img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png"><div class="b-day__date">' + day[0].date + '</div>';
+        $(day).each(function (lectionId, lection) {
+            html += '<div class="b-lesson"><div data-day="' + dayId + '" data-lection="' + lectionId + '" class="b-lesson__time">' + lection.time +
+                '</div><div class="b-lesson__name">' + lection.theme + ' - <i>' + lection.lector.name + '</i></div></div>';
+        });
+        html += '<a href="#" class="b-button b-lesson__link" data-id="' + dayId + '">Посмотреть</a></div>';
+    });
     $('.b-schedule').html(html);
     $('.b-lesson__time').draggable({
         revert:"invalid"
-
     });
 
     $('.b-day').droppable({
@@ -288,8 +273,6 @@ Shri.prototype.buildSchedule = function () {
             }
         }
     });
-
-
 }
 /**
 *returns day id or false if not exist
@@ -298,12 +281,13 @@ Shri.prototype.buildSchedule = function () {
 *@return {integer} id of day or false
 */
 Shri.prototype.getDayByDate = function (date) {
-    var schedule = this.schedule;
-    for (var i = schedule.length - 1; i >= 0; i--) {
-        if (schedule[i][0].date == date)
-            return i;
-    }
-    return false;
+    dayByDate = false;
+    $(this.schedule).each(function (dayId, day){
+        if (day[0].date == date)
+            dayByDate = dayId;
+    });
+    alert(dayByDate);
+    return dayByDate;
 }
 /**
 *changes day of lection
@@ -313,28 +297,33 @@ Shri.prototype.getDayByDate = function (date) {
 *@param {text} new date
 *@return {boolean} smth changed or not
 */
-Shri.prototype.changeLectionDay = function (day, lection, date) {
+//TODO dayId lectionId
+Shri.prototype.changeLectionDay = function (oldDayId, oldLectionId, date) {
+
     var schedule = this.schedule;
     //если переносят в тот же день
-    if (schedule[day][lection].date == date)
+    if (schedule[oldDayId][oldLectionId].date == date)
         return false;
     //ищем существующий день
-    for (var i = 0; i <= schedule.length - 1; i++) {
-
-        for (var j = 0; j <= schedule[i].length - 1; j++) {
-            if (schedule[i][j].date == date) {
-                Shri.addLectionToDay(schedule[day][lection], i);
-                Shri.deleteLectionFromDay(day, lection);
-                return true;
+    var found = false;
+    $(schedule).each(function (dayId, day) {
+        $(day).each(function (lectionId, lection) {
+            if(!found){
+                if (lection.date == date) {
+                    Shri.addLectionToDay(schedule[oldDayId][oldLectionId], dayId);
+                    Shri.deleteLectionFromDay(oldDayId, oldLectionId);
+                    found = true;
+                    return;
+                }
             }
-        }
-        ;
-    }
-    ;
+        });
+    });
+    if(found)
+        return found;
     //не нашли
-    this.schedule.push([schedule[day][lection]]);
+    this.schedule.push([schedule[oldDayId][oldLectionId]]);
     this.schedule[this.schedule.length - 1][0].date = date;
-    this.deleteLectionFromDay(day, lection);
+    this.deleteLectionFromDay(oldDayId, oldLectionId);
     this.schedule.sort(function (a, b) {
         a = getDateOfTextDate(a[0].date);
         b = getDateOfTextDate(b[0].date);
@@ -384,7 +373,7 @@ Shri.prototype.ini = function () {
     var schedule = localStorage.getItem('Shri');
     if (schedule != '' && schedule != undefined && schedule != '[[]]' && schedule != '[]') {
         this.schedule = $.parseJSON(schedule);
-        if (!this.today()) {
+        if (this.today()===false) {
             $('.b-toolbar__link_name_today').removeClass('b-toolbar__link_name_today').addClass('b-link-disabled')
         }
         this.buildSchedule(schedule);
@@ -402,34 +391,27 @@ Shri.prototype.export = function () {
     var schedule = this.schedule;
     var res = new String();
     var days = schedule.length - 1;
-    for (var i = 0; i <= days; i++) {
-        for (var j = 0; j <= schedule[i].length - 1; j++) {
-            var day = schedule[i][j];
-            res += day.date + '\n';
-            res += day.time + '\n';
-            res += day.theme + '\n';
-            res += day.lector.name + ' (';
-            var lectorLinks = day.lector.links.length - 1;
-            for (var link = 0; link <= lectorLinks; link++) {
-                res += day.lector.links[link]
-                if (link != lectorLinks)
+    $(schedule).each(function (dayId, day) {
+        $(day).each(function (lectionId, lection) {
+            res += lection.date + '\n';
+            res += lection.time + '\n';
+            res += lection.theme + '\n';
+            res += lection.lector.name + ' (';
+            var lectorLinks = lection.lector.links.length - 1;
+            $(lection.lector.links).each(function (linkId, link) {
+                res += link
+                if (linkId != lectorLinks)
                     res += ', ';
-
-            }
-            ;
+            });
             res += ')\n';
-            var ideas = day.idea.length - 1;
-            for (var idea = 0; idea <= ideas; idea++) {
-                res += '?: ' + day.idea[idea] + '\n';
-            }
-            ;
-            res += day.link;
-        }
-        ;
-        if (i != days)
+            $(lection.idea).each(function (ideaId, idea) {
+                res += '?: ' + idea + '\n';
+            });            ;
+            res += lection.link;
+        });
+        if (dayId != days)
             res += '\n##\n';
-    }
-    ;
+    });
     return res;
 };
 Shri = new Shri();
@@ -480,33 +462,78 @@ Interface.prototype.closeDialog = function () {
     this.dialogVisible = false;
 }
 /**
+*generates form for adding new lection
+*
+*/
+Interface.prototype.newLesson = function () {
+	var html = '';
+}
+/**
+*generates form for editting day
+*
+*@param {integer} id of day
+*/
+Interface.prototype.editDay = function (id) {
+    //TODO: currentDay
+    var day = Shri.schedule[id];
+    var html = new String();
+    var date = day[0].date;
+    for (var i = 0; i <= day.length - 1; i++) {
+        html += '<form class="b-edit-lesson" data-id="' + i + '">' +
+            '<input type="hidden" name="date" value="' + date + '">' +
+            '<table class="i-edit-lesson">' +
+
+            '<tr><td>Время</td><td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="' + day[i].time + '"></td></tr>' +
+            '<tr><td colspan="3">Тема</td></tr>' +
+            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="' + day[i].theme + '"></td></tr>' +
+            '<tr><td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td></tr>';
+
+        for (var j = 0; j <= day[i].idea.length - 1; j++) {
+            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="' + day[i].idea[j] + '"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
+        }
+        html += '<tr><td colspan="3">Лектор</td></tr>' +
+            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="' + day[i].lector.name + '"></td></tr>' +
+            '<tr><td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td></tr>';
+        for (var j = 0; j <= day[i].lector.links.length - 1; j++) {
+            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="' + day[i].lector.links[j] + '"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
+        }
+        ;
+        html += '<tr><td colspan="3">Презентация</td></tr>' +
+            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="' + day[i].link + '"></td></tr>' +
+            '</table></form>';
+    }
+    var footer = '<a href="#" class="b-save-day" data-id="' + id + '">Сохранить</a> ' +
+        '<a href="#" class="b-lesson__link" data-id="' + id + '">Показать день</a> ' +
+        '<a href="#" class="b-save-day-quit">Выйти</a>';
+    this.openDialog(date, html, footer);
+
+}
+/**
 *shows day by id
 *
 *@param {integer} id of day
 */
 Interface.prototype.showDay = function (id) {
-    //TODO: currentDay
     var day = Shri.schedule[id];
     var html = new String();
-    for (var i = 0; i <= day.length - 1; i++) {
-        html += '<div class="b-day-lesson"><div class="b-day-lesson__time">' + day[i].time +
-            '</div><h1 class="b-day-lesson__theme">' + day[i].theme + '</h1><div class="b-lector">Лектор: ' + day[i].lector.name +
+    $(day).each(function (lectionId, lection) {
+        html += '<div class="b-day-lesson"><div class="b-day-lesson__time">' + lection.time +
+            '</div><h1 class="b-day-lesson__theme">' + lection.theme + '</h1><div class="b-lector">Лектор: ' + lection.lector.name +
             ' (';
-        var lectorLinks = day[i].lector.links.length - 1;
-        for (var j = 0; j <= lectorLinks; j++) {
-            html += '<a href="' + day[i].lector.links[j] + '" class="b-lector__link">' + shortUrl(day[i].lector.links[j]) + '</a>' + (lectorLinks == j ? '' : ', ');
-        }
+        var lectorLinks = lection.lector.links.length - 1;
+        $(lection.lector.links).each(function (linkId, link) {
+            html += '<a href="' + link + '" class="b-lector__link">' + shortUrl(link) + '</a>' + (lectorLinks == linkId ? '' : ', ');
+        });
         html += ')</div><div class="b-headnotes"><h4 class="b-headnotes__header">Тезисы:</h4>';
-        for (var j = 0; j <= day[i].idea.length - 1; j++) {
-            html += '<div class="b-headnote">' + day[i].idea[j] + '</div>';
-        }
-        html += '</div><a href="' + day[i].link + '" target="_blank" class="b-button b-day-lesson__keynote">Презентация</a>';
+        $(lection.idea).each(function (ideaId, idea) {
+            html += '<div class="b-headnote">' + idea + '</div>';
+        });
+        html += '</div><a href="' + lection.link + '" target="_blank" class="b-button b-day-lesson__keynote">Презентация</a>';
         html += '</div>';
-    }
+    });
     html += '<div class="b-dialog-win__nav"><a onclick="return false;" class="b-dialog-win__nav_target_prev" href="' + (id - 1) + '">←</a>  Ctrl  ' +
         '<a class="b-dialog-win__nav_target_next" href="' + (parseInt(id) + 1) + '">→</a> <a class="b-dialog-win__nav_target_edit" href="' + (parseInt(id)) + '">Изменить</a></div>';
     Interface.openDialog(day[0].date, html);
-
 }
 /**
 *date picker toggle 
@@ -575,46 +602,7 @@ Interface.prototype.droppableDatepicker = function () {
     }, 100);
 
 }
-/**
-*generates form for editting day
-*
-*@param {integer} id of day
-*/
-Interface.prototype.editDay = function (id) {
-    //TODO: currentDay
-    var day = Shri.schedule[id];
-    var html = new String();
-    var date = day[0].date;
-    for (var i = 0; i <= day.length - 1; i++) {
-        html += '<form class="b-edit-lesson" data-id="' + i + '">' +
-            '<input type="hidden" name="date" value="' + date + '">' +
-            '<table class="i-edit-lesson">' +
 
-            '<tr><td>Время</td><td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="' + day[i].time + '"></td></tr>' +
-            '<tr><td colspan="3">Тема</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="' + day[i].theme + '"></td></tr>' +
-            '<tr><td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td></tr>';
-
-        for (var j = 0; j <= day[i].idea.length - 1; j++) {
-            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="' + day[i].idea[j] + '"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
-        }
-        html += '<tr><td colspan="3">Лектор</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="' + day[i].lector.name + '"></td></tr>' +
-            '<tr><td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td></tr>';
-        for (var j = 0; j <= day[i].lector.links.length - 1; j++) {
-            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="' + day[i].lector.links[j] + '"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
-        }
-        ;
-        html += '<tr><td colspan="3">Презентация</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="' + day[i].link + '"></td></tr>' +
-            '</table></form>';
-    }
-    var footer = '<a href="#" class="b-save-day" data-id="' + id + '">Сохранить</a> ' +
-        '<a href="#" class="b-lesson__link" data-id="' + id + '">Показать день</a> ' +
-        '<a href="#" class="b-save-day-quit">Выйти</a>';
-    this.openDialog(date, html, footer);
-
-}
 Interface = new Interface();
 
 $(function () {
@@ -636,7 +624,7 @@ $(function () {
     var $schedule = $('.b-schedule');
     var $toolbar = $('.b-toolbar');
     var $dialogWin = $('.b-dialog-win');
-    var $datepickerToggle = $('.b-datepicker-toggle')
+    var $datepickerToggle = $('.b-datepicker-toggle');
     $schedule
     	.on('mousedown', '.b-lesson__time',function(){
 	    	if (Interface.datepickerOpened)
@@ -649,10 +637,6 @@ $(function () {
 	        Interface.editDay($(this).parent().data('day'));
 	        return false;
     	})
-    	.on('click', '.b-toolbar__link_name_today',function(){
-    		Interface.showDay(Shri.today());
-        	return false;
-    	})
     	.on('click', '.b-lesson__link', function () {
 	        var id = $(this).data('id');
 	        Interface.showDay(id);
@@ -661,7 +645,7 @@ $(function () {
     	
    
     $toolbar
-    	.on('click', '.b-toolbar__link_name_export', function(){
+    	.on('click', '.b-toolbar__link_name_export', function() {
 	    	var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>';
 	        Interface.openDialog('Экспорт', html);
 	        $('.b-export-textarea').val(Shri.export()).select();
@@ -672,11 +656,18 @@ $(function () {
 	        Interface.openDialog('Справочная', html);
 	        return false;
    		})
-   		.on('click', '.b-toolbar__link_name_import', function(){
+   		.on('click', '.b-toolbar__link_name_import', function() {
 			var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p><textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
 			Interface.openDialog('Импорт', html);
 			return false;
-   		});
+   		})
+   		.on('click', '.b-toolbar__link_name_new-lesson', function() {
+   			Interface.newLesson();
+   		})
+        .on('click', '.b-toolbar__link_name_today',function(){
+            Interface.showDay(Shri.today());
+            return false;
+        });
 
 	$dialogWin
 		.on('click', '.b-import-btn', function () {
@@ -745,8 +736,11 @@ $(function () {
 	        Interface.showDay(id);
 	        return false;
     	});
+
 	$datepickerToggle
+    //TODO wtf
 		.on('click', '.ui-state-default', function () {
+            alert();
 			$this = $(this);
 			var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
 			var id = Shri.getDayByDate(date);
@@ -758,7 +752,9 @@ $(function () {
 			Interface.datepickerToggle(200);
 		})
 
+    //TODO on
     $('.b-link-disabled').click(function () {
+    	alert();
         return false;
     });
 
@@ -781,4 +777,5 @@ $(window).resize(function () {
     Interface.dialogPos();
 });
 /* TODO function today rename*/
-
+//todo today lagaet + dynamic
+// TODO input type=text
