@@ -21,15 +21,6 @@ $.fn.serializeObject = function () {
     return o;
 }
 /**
-*emulates trim function from php
-*
-*@param {string} str
-*@return {string} new str
-*/
-function trim(str) {
-    return str.replace(/^\s+|\s+$/g, "");
-}
-/**
 *generates short url from full url
 *
 *@param {string} url
@@ -53,12 +44,12 @@ function Today() {
 /**
 * returns date of text dd.mm.yyyy
 *
-*@param {text} text-date
+*@param {string} text-date
 *@return {date} date
 */
 function getDateOfTextDate(text) {
     //15.09.2012
-    text = trim(text);
+    text = $.trim(text);
     var arr = text.split('.');
     var year = parseInt(arr[2]);
     if (arr[1][0] != '0')
@@ -71,12 +62,12 @@ function getDateOfTextDate(text) {
 /**
 * returns date of text hh:mm
 *
-*@param {text} text-time
+*@param {string} text-time
 *@return {date} date
 */
 function getDateOfTextTime(text) {
     //13:00
-    text = trim(text);
+    text = $.trim(text);
     var arr = text.split(':');
     return new Date(0, 0, 0, arr[0], arr[1]);
 }
@@ -95,6 +86,11 @@ function Lection (obj, day) {
     this.idea = obj.idea;
     this.day = day;
 }
+/**
+*returns current lection' day
+*
+*@return {array} day
+*/
 Lection.prototype.Day = function() {
     return Shri.schedule[this.day];
 };
@@ -107,10 +103,35 @@ function Shri () {
     this.version = 'alpha';
     this.schedule = undefined;
 }
-//lection={}
-//TODO
-Shri.prototype.isValid = function (form) {
+//TODO больше проверок :-)
+Shri.prototype.isValid = function (forms) {
+    var time = /^[0-9]{0,2}[0-9]{1,2}:[0-9]{2}$/;
+    var date = /^[0-9]{1,2}.[0-9]{1,2}.20[0-9]{2}$/;
+    var specialChars = /##|\?:/;
+    var isValid = true;
+    $(forms).each(function(id,form){
+         var obj = $(form).serializeObject();
+         if(!date.test(obj.date)) {
+            isValid = false;
+            alert('дата пишется в формате дд.мм.гггг');
+            return;
+         }
+         if(!time.test(obj.time)) {
+            alert('Время пишется в формате чч:мм');
+            isValid = false;
+            return;
+         }
+         $.each(obj, function () {
+            if(specialChars.test(this)) {
+                alert('## и ?: зарезервированные символы!');
+                isValid = false;
+                return;
+            }
 
+         });
+
+    });
+    return isValid;
 }
 /**
 *Sort array by time
@@ -146,7 +167,7 @@ Shri.prototype.addLectionToDay = function (lection, day) {
 *@param {integer} day id
 */
 Shri.prototype.deleteDay = function (id) {
-    this.schedule = split(id, this.schedule);
+    this.schedule.split(id, this.schedule);
     localStorage.setItem('Shri', JSON.stringify(this.schedule));
 };
 /**
@@ -188,7 +209,7 @@ Shri.prototype.today = function () {
 /**
 *imports text with shri format to app data
 *
-*@param {text} text with shri format
+*@param {string} text with shri format
 */
 Shri.prototype.import = function (text) {
     var arr = text.split('##');
@@ -202,7 +223,7 @@ Shri.prototype.import = function (text) {
         var countIdea = 0;
         schedule[dayId][countLection] = new Object();
         $(strings).each(function (line, string) {
-            var currentStr = trim(string);
+            var currentStr = $.trim(string);
             if (currentStr != '') {
                 //TODO Switch
                 //date
@@ -223,16 +244,16 @@ Shri.prototype.import = function (text) {
                     schedule[dayId][countLection].lector = new Object();
                     var split = currentStr.split('(');
                     var linksStr = split[1];
-                    linksStr = trim(linksStr.replace(')', '').replace(' ', ''));
-                    schedule[dayId][countLection].lector.name = trim(split[0]);
+                    linksStr = $.trim(linksStr.replace(')', '').replace(' ', ''));
+                    schedule[dayId][countLection].lector.name = $.trim(split[0]);
                     schedule[dayId][countLection].lector.links = linksStr.split(',');
                 }
                 //idea
                 if (countStr > 3) {
-                    if (trim(string).indexOf('?:') + 1) {
+                    if ($.trim(string).indexOf('?:') + 1) {
                         if (schedule[dayId][countLection].idea == undefined)
                             schedule[dayId][countLection].idea = new Array();
-                        currentStr = trim(currentStr.replace('?:', ''));
+                        currentStr = $.trim(currentStr.replace('?:', ''));
                         schedule[dayId][countLection].idea[countIdea] = currentStr;
                         countIdea++;
                     }
@@ -302,7 +323,7 @@ Shri.prototype.buildSchedule = function () {
 /**
 *returns day id or false if not exist
 //todo map
-*@param {text} date
+*@param {string} date
 *@return {integer} id of day or false
 */
 Shri.prototype.getDayByDate = function (date) {
@@ -319,7 +340,7 @@ Shri.prototype.getDayByDate = function (date) {
 *
 *@param {integer} day id
 *@param {integer} lection id
-*@param {text} new date
+*@param {string} new date
 *@return {boolean} smth changed or not
 */
 //TODO dayId lectionId
@@ -420,7 +441,7 @@ Shri.prototype.ini = function () {
 /**
 *takes app's schedule and make shri format from it
 *
-*@return {text} shri formatted text
+*@return {string} shri formatted text
 */        
 Shri.prototype.export = function () {
     var schedule = this.schedule;
@@ -464,9 +485,9 @@ function Interface() {
 /**
 *puts html to dialog html and shows it
 *
-*@param {text} header html
-*@param {text} content html
-*@param {text} footer html
+*@param {string} header html
+*@param {string} content html
+*@param {string} footer html
 */
 Interface.prototype.openDialog = function (header, html, footer) {
     this.dialogVisible = true;
@@ -735,13 +756,17 @@ $(function () {
            .on('click', '.b-save-day', function () {
             var arr = new Array();
             var day = $(this).data('id');
-            $('.b-edit-lesson').each(function (k, form) {
-                var dataModel = Shri.reserialize($(form).serializeObject(),day);
-                arr.push(dataModel);
 
-            });
-            arr.sort(Shri.sortByTime);
-            Shri.saveDay(day, arr);
+            if(Shri.isValid($('.b-edit-lesson'))){
+                $('.b-edit-lesson').each(function (k, form) {
+                    var dataModel = Shri.reserialize($(form).serializeObject(),day);
+                    arr.push(dataModel);
+
+                });
+                arr.sort(Shri.sortByTime);
+                Shri.saveDay(day, arr);
+            }
+            
         })
         .on('click', '.b-dialog-win__close-btn' , function () {
             Interface.closeDialog();
