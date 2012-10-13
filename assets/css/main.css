@@ -8,7 +8,7 @@ body{
     padding-bottom: 40px;
 }
 button{
-        -webkit-transition: All 0.3s ease;
+    -webkit-transition: All 0.3s ease;
     -moz-transition: All 0.3s ease;
     -o-transition: All 0.3s ease;
     -ms-transition: All 0.3s ease;
@@ -113,6 +113,11 @@ a:active{
     position: absolute;
     top: 9px;
     right: 14px;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
 }
 .b-day__edit:hover{
     -moz-opacity:1; 
@@ -386,4 +391,4 @@ cursor: pointer;
 .b-new-lesson__input_name_time{
     width: 200px;
 }
-/* minwidth*/
+/* TODO minwidth*/

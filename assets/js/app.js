@@ -308,27 +308,6 @@ Shri.prototype.buildSchedule = function () {
         html +=Mustache.render($('.b-templates__template_name_lection').html(), {lections: schedule[key], date: key});
     });
     
-    //alert($('.b-templates__template_name_lecture').html());
-
-    //var output = Mustache.render($('.', view);
-    /*$(schedule).each(function (dayId, day) {
-        html +=
-            html += '<div class="b-lesson"><div data-day="' + dayId + '" data-lection="' + lectionId + '" class="b-lesson__time">' + lection.time +
-                '</div><div class="b-lesson__name">' + lection.theme + ' - <i>' + lection.lector.name + '</i></div></div>';
-        });
-        html += '<a href="#" class="b-button b-lesson__link" data-id="' + dayId + '">Посмотреть</a></div>';
-    });*/
-
-
-
-/*$(schedule).each(function (dayId, day) {
-        html += '<div class="b-day" data-day="' + dayId + '"><img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png"><div class="b-day__date">' + day[0].date + '</div>';
-        $(day).each(function (lectionId, lection) {
-            html += '<div class="b-lesson"><div data-day="' + dayId + '" data-lection="' + lectionId + '" class="b-lesson__time">' + lection.time +
-                '</div><div class="b-lesson__name">' + lection.theme + ' - <i>' + lection.lector.name + '</i></div></div>';
-        });
-        html += '<a href="#" class="b-button b-lesson__link" data-id="' + dayId + '">Посмотреть</a></div>';
-    });*/
     $('.b-schedule').html(html);
     $('.b-lesson__time').draggable({
         revert:"invalid"
@@ -463,7 +442,8 @@ Shri.prototype.ini = function () {
         }*/
         this.buildSchedule();
     } else {
-        $('.b-schedule').html('<div class="b-day"><h1 class="b-hello-header">Добро пожаловать :-)</h1><p class="b-hello-text">Загляните в справку или загрузите ваше расписание.</p></div>');
+        //TODO refactor such things
+        $('.b-schedule').html(Mustache.render($('.b-templates__template_name_hello-world').html()));
     }
 
 };
@@ -551,22 +531,8 @@ Interface.prototype.closeDialog = function () {
 *
 */
 Interface.prototype.newLesson = function () {
-    var html = '<form class="b-new-lesson"><table>'+
-    '<tr><td width="20%"></td><td width="70%"></td><td width="10%"></td></tr><tr><td>Дата</td>'+
-    '<td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td></tr><tr><td>Время</td>'+
-    '<td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td>'+
-    '</tr><tr><td>Тема</td><td colspan="2"><input name="theme" type="text" class="b-new-lesson__input">'+
-    '</td></tr><tr><td>Лектор</td><td colspan="2"><input type="text" class="b-new-lesson__input" name="lector.name">'+
-    '</td></tr><tr><td colspan="3">Ссылки на лектора <a href="#" class="b-new-lesson__add-link">+</a></td>'+
-    '</tr><tr><td colspan="2"><input  type="text" class="b-new-lesson__input" name="lector.links"></td>'+
-    '<td><a href="#" class="b-new-lesson__delete-link">x</a></td>'+
-    '</tr><tr><td colspan="3">Тезисы<a href="#" class="b-new-lesson__add-idea">+</a></td></tr>'+
-    '<tr><td colspan="2"><input  type="text" class="b-new-lesson__input" name="idea"></td>'+
-    '<td><a href="#" class="b-new-lesson__delete-idea">x</a></td>'+
-    '</tr><tr><td>Презентация</td><td colspan="2"><input name="link" type="text" class="b-new-lesson__input">'+
-    '</td></tr></table></form>';
-    var footer = '<a href="#" class="b-new-lesson__save">Сохранить</a> '+
-                 '<a href="#" class="b-new-lesson__quit">Выйти</a>';
+    var html = Mustache.render($('.b-templates__template_name_new-lection').html());
+    var footer = Mustache.render($('.b-templates__template_name_new-lection-footer').html());
     this.openDialog('Новая лекция', html, footer);
 }
 /**
@@ -575,41 +541,11 @@ Interface.prototype.newLesson = function () {
 *@param {integer} id of day
 */
 Interface.prototype.editDay = function (id) {
-    //TODO: currentDay
-
     var day = Shri.schedule[id];
-    var html = new String();
-    var date = day[0].date;
-    $(day).each(function (lectionId, lection) {
-        html += '<form class="b-edit-lesson" data-id="' + lectionId + '">' +
-            '<input type="hidden" name="date" value="' + date + '">' +
-            '<table class="i-edit-lesson">' +
-            '<tr><td>Время</td><td>'+
-            '<input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="' + lection.time + '"></td></tr>' +
-            '<tr><td colspan="3">Тема</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="theme" value="' + lection.theme + '"></td></tr>' +
-            '<tr><td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td></tr>';
-
-        $(lection.idea).each(function (ideaId, idea) {
-            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="idea" value="' + idea +
-            '"></td><td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>';
-        });
-        html += '<tr><td colspan="3">Лектор</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="' + lection.lector.name + '"></td></tr>' +
-            '<tr><td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td></tr>';
-        $(lection.lector.links).each(function(linkId, link) {
-            html += '<tr><td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="' + link +
-            '"></td><td><a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>';
-        });
-        html += '<tr><td colspan="3">Презентация</td></tr>' +
-            '<tr><td colspan="3"><input class="b-edit-lesson__input" name="link" value="' + lection.link + '"></td></tr>' +
-            '</table></form>';
-    });
-    var footer = '<a href="#" class="b-save-day" data-id="' + id + '">Сохранить</a> ' +
-        '<a href="#" class="b-lesson__link" data-id="' + id + '">Показать день</a> ' +
-        '<a href="#" class="b-save-day-quit">Выйти</a>';
-    this.openDialog(date, html, footer);
-
+    var html = Mustache.render($('.b-templates__template_name_lection-edit').html(), {lections: day});
+    //TODO rename date to id where neccesery
+    var footer = Mustache.render($('.b-templates__template_name_lection-edit-footer').html(), {id: id});
+    this.openDialog(id, html, footer);
 }
 /**
 *shows day by id
@@ -618,26 +554,14 @@ Interface.prototype.editDay = function (id) {
 */
 Interface.prototype.showDay = function (id) {
     var day = Shri.schedule[id];
-    var html = new String();
-    $(day).each(function (lectionId, lection) {
-        html += '<div class="b-day-lesson"><div class="b-day-lesson__time">' + lection.time +
-            '</div><h1 class="b-day-lesson__theme">' + lection.theme + '</h1><div class="b-lector">Лектор: ' + lection.lector.name +
-            ' (';
-        var lectorLinks = lection.lector.links.length - 1;
-        $(lection.lector.links).each(function (linkId, link) {
-            html += '<a href="' + link + '" class="b-lector__link">' + shortUrl(link) + '</a>' + (lectorLinks == linkId ? '' : ', ');
-        });
-        html += ')</div><div class="b-headnotes"><h4 class="b-headnotes__header">Тезисы:</h4>';
-        $(lection.idea).each(function (ideaId, idea) {
-            html += '<div class="b-headnote">' + idea + '</div>';
-        });
-        html += '</div><a href="' + lection.link + '" target="_blank" class="b-button b-day-lesson__keynote">Презентация</a>';
-        html += '</div>';
-    });
-    html += '<div class="b-dialog-win__nav"><a onclick="return false;" class="b-dialog-win__nav_target_prev" href="' + (id - 1) + '">←</a>  Ctrl  ' +
-        '<a class="b-dialog-win__nav_target_next" href="' + (parseInt(id) + 1) + '">→</a> <a class="b-dialog-win__nav_target_edit" href="'
-        + (parseInt(id)) + '">Изменить</a></div>';
-    Interface.openDialog(day[0].date, html);
+    var html = Mustache.render(
+            $('.b-templates__template_name_full-lection').html(), 
+            {lections: day, tinyurl:function() {
+                return shortUrl(this);
+            }}
+        );
+    var footer = Mustache.render($('.b-templates__template_name_full-lection-footer').html(), {id: id});
+    Interface.openDialog(day[0].date, html, footer);
 }
 /**
 *date picker toggle 
@@ -749,24 +673,25 @@ $(function () {
    
     $toolbar
         .on('click', '.b-toolbar__link_name_export', function() {
-            var html = '<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>';
+            var html = Mustache.render($('.b-templates__template_name_export').html());
             Interface.openDialog('Экспорт', html);
             $('.b-export-textarea').val(Shri.export()).select();
             return false;
         })
         .on('click', '.b-toolbar__link_name_manual', function () {
-            var html = '<p>Здесь будет справка</p>';
+            var html = Mustache.render($('.b-templates__template_name_help').html());
             Interface.openDialog('Справочная', html);
             return false;
            })
            .on('click', '.b-toolbar__link_name_import', function() {
-            var html = '<p>Вставьте содержимое файла .shri и нажмите импорт.</p>'+
-            '<textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>';
+            var html = Mustache.render($('.b-templates__template_name_import').html());
             Interface.openDialog('Импорт', html);
             return false;
            })
            .on('click', '.b-toolbar__link_name_new-lesson', function() {
+            //verni html suda
                Interface.newLesson();
+               return false;
            })
         .on('click', '.b-toolbar__link_name_today',function(){
             Interface.showDay(Shri.today());
@@ -831,27 +756,19 @@ $(function () {
                 $this.parents('tr').remove();
         })
         .on('click', '.b-edit-lesson__add-idea', function () {
-            $(this).parents('tr').after('<tr><td colspan="2">'+
-                '<input class="b-edit-lesson__input" name="idea"></td>'+
-                '<td><a href="#" class="b-edit-lesson__delete-idea">x</a></td></tr>');
+            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-idea').html()));
             return false;
         })
           .on('click', '.b-edit-lesson__add-link', function () {
-            $(this).parents('tr').after('<tr><td colspan="2">'+
-                '<input class="b-edit-lesson__input" name="lector.links"></td><td>'+
-                '<a href="#" class="b-edit-lesson__delete-link">x</a></td></tr>');
+            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-link').html()));
             return false;
         })
         .on('click', '.b-new-lesson__add-link', function () {
-            $(this).parents('tr').after('<tr><td colspan="2">'+
-                '<input class="b-new-lesson__input" name="lector.links"></td><td>'+
-                '<a href="#" class="b-new-lesson__delete-link">x</a></td></tr>');
+            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-link').html()));
             return false;
         })
         .on('click', '.b-new-lesson__add-idea', function () {
-            $(this).parents('tr').after('<tr><td colspan="2">'+
-                '<input class="b-edit-lesson__input" name="idea"></td>'+
-                '<td><a href="#" class="b-new-lesson__delete-idea">x</a></td></tr>');
+            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-idea').html()));
             return false;
         })
         .on('click', '.b-new-lesson__delete-link', function () {
