@@ -22,6 +22,7 @@
 		<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
 		<a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
 		<a class="b-toolbar__link b-toolbar__link_name_manual" href="#">Справка</a>
+		<a class="b-toolbar__link" onclick="localStorage.setItem('lections','');localStorage.setItem('keys','')" href="#">Очистить локал</a>
 	</div>
 	<div class="b-bg-shadow"></div>
 	<div class="b-dialog-win">
@@ -34,11 +35,29 @@
 		<div class="b-datepicker"></div>
 		<img class="b-datepicker-toggle__nav-button" src="assets/img/right_arrow.png">
 	</div>
-	
+	<div class="b-templates">
+		<script class="b-templates__template_name_test" type="text/html">
+			12312 {{test}}
+		</script>
+		<script class="b-templates__template_name_lection" type="text/html">
+		<div class="b-day" data-day="{{date}}">
+		    <img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png">
+		    <div class="b-day__date">{{date}}</div>
+			{{#lections}}
+			<div class="b-lesson">
+				<div class="b-lesson__time">{{time}}</div>
+				<div class="b-lesson__name">{{theme}} - <i>{{lector.name}}</i></div>
+			</div>	
+			{{/lections}}
+			<a href="#" class="b-button b-lesson__link" data-id="{{date}}">Посмотреть</a></div>
+		</div>
+		</script>
+
+	</div>
 </body>
 <script src="assets/js/jq.js"></script>
 <script src="assets/js/jq-ui.js"></script>
 <script src="assets/js/shortcut.js"></script>
-<script src="assets/js/xregexp-min.js"></script>
+<script src="assets/js/mustache.js"></script>
 <script src="assets/js/app.js"></script>
 </html>

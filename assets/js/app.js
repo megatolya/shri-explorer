@@ -4,21 +4,6 @@
 *@return {object} serialized form object
 */
 // TODO reserealize add
-$.fn.serializeObject = function () {
-    var o = {};
-    var a = this.serializeArray();
-    $.each(a, function () {
-        if (o[this.name] !== undefined) {
-            if (!o[this.name].push) {
-                o[this.name] = [o[this.name]];
-            }
-            o[this.name].push(this.value || '');
-        } else {
-            o[this.name] = this.value || '';
-        }
-    });
-    return o;
-}
 /**
 *generates short url from full url
 *
@@ -76,7 +61,7 @@ function getDateOfTextTime(text) {
 *
 *@this {Lection}
 */
-function Lection (obj, day) {
+function Lection (obj) {
     this.date = obj.date;
     this.theme = obj.theme;
     this.link = obj.link;
@@ -84,7 +69,7 @@ function Lection (obj, day) {
     this.lector = obj.lector;
     this.idea = obj.idea;
     //TODO change day when moved
-    this.day = day;
+    
 }
 /**
 *returns current lection' day
@@ -119,7 +104,7 @@ Shri.prototype.isValid = function (forms) {
          var obj = $(form).serializeObject();
          if(!date.test(obj.date)) {
             isValid = false;
-            alert('дата пишется в формате дд.мм.гггг');
+            alert('Дата пишется в формате дд.мм.гггг');
             return;
          }
          if(!time.test(obj.time)) {
@@ -130,6 +115,12 @@ Shri.prototype.isValid = function (forms) {
          $.each(obj, function () {
             if(specialChars.test(this)) {
                 alert('## и ?: зарезервированные символы!');
+                isValid = false;
+                return;
+            }
+            console.log($.trim(this));
+            if(this==''){
+                alert('Не все поля заполнены');
                 isValid = false;
                 return;
             }
@@ -281,15 +272,27 @@ Shri.prototype.import = function (text) {
         if (schedule[dayId][countLection].time == undefined)
             schedule[dayId].splice(countLection, 1)
     });
-    var newSchedule=new Array();
+    
+    this.importJson(schedule);
+    
+}
+console.log( );
+//todo comment
+Shri.prototype.importJson = function (schedule) {
+    var newSchedule = new Object();
+    var keysArray = new Array();
     $(schedule).each(function (dayId,day) {
-        arr = $.map(day, function (lection){
+        obj = $.map(day, function (lection){
             return new Lection(lection, dayId);
         });
-        newSchedule[dayId]=arr;
+        var date = obj[0].date;
+        keysArray[dayId] = date
+        newSchedule[date]=obj;
     });
     this.schedule = newSchedule;
-    localStorage.setItem('Shri', JSON.stringify(newSchedule));
+    this.keys = keysArray;
+    localStorage.setItem('lections', JSON.stringify(newSchedule));
+    localStorage.setItem('keys', JSON.stringify(keysArray));
 }
 //TODO поменять все парентс на data-id, data-id поменять на data-day
 /**
@@ -297,15 +300,35 @@ Shri.prototype.import = function (text) {
 */
 Shri.prototype.buildSchedule = function () {
     var schedule = this.schedule;
+    var keys = this.keys;
+    
     var html = new String();
-    $(schedule).each(function (dayId, day) {
+    $(keys).each(function(index, key) {
+        //alert($('.b-templates__template_name_lection').html())
+        html +=Mustache.render($('.b-templates__template_name_lection').html(), {lections: schedule[key], date: key});
+    });
+    
+    //alert($('.b-templates__template_name_lecture').html());
+
+    //var output = Mustache.render($('.', view);
+    /*$(schedule).each(function (dayId, day) {
+        html +=
+            html += '<div class="b-lesson"><div data-day="' + dayId + '" data-lection="' + lectionId + '" class="b-lesson__time">' + lection.time +
+                '</div><div class="b-lesson__name">' + lection.theme + ' - <i>' + lection.lector.name + '</i></div></div>';
+        });
+        html += '<a href="#" class="b-button b-lesson__link" data-id="' + dayId + '">Посмотреть</a></div>';
+    });*/
+
+
+
+/*$(schedule).each(function (dayId, day) {
         html += '<div class="b-day" data-day="' + dayId + '"><img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png"><div class="b-day__date">' + day[0].date + '</div>';
         $(day).each(function (lectionId, lection) {
             html += '<div class="b-lesson"><div data-day="' + dayId + '" data-lection="' + lectionId + '" class="b-lesson__time">' + lection.time +
                 '</div><div class="b-lesson__name">' + lection.theme + ' - <i>' + lection.lector.name + '</i></div></div>';
         });
         html += '<a href="#" class="b-button b-lesson__link" data-id="' + dayId + '">Посмотреть</a></div>';
-    });
+    });*/
     $('.b-schedule').html(html);
     $('.b-lesson__time').draggable({
         revert:"invalid"
@@ -338,7 +361,6 @@ Shri.prototype.getDayByDate = function (date) {
         if (day[0].date == date)
             dayByDate = dayId;
     });
-    alert(dayByDate);
     return dayByDate;
 }
 /**
@@ -423,22 +445,23 @@ Shri.prototype.saveDay = function (id, arr) {
 *initialize localstorage and calls Shri.today method
 */
 Shri.prototype.ini = function () {
-    var schedule = localStorage.getItem('Shri');
+    var schedule = localStorage.getItem('lections');
     if (schedule != '' && schedule != undefined && schedule != '[[]]' && schedule != '[]') {
         schedule = $.parseJSON(schedule);
-        var newSchedule = new Array;
-        $(schedule).each(function (dayId, day) {
-            newSchedule[dayId] = $.map(day, function (lection) {
-                return new Lection(lection, dayId);
-            });
-            
+        var newSchedule = {};
+        $.each(schedule, function (id, lections) {
+            newSchedule[id] = new Array();
+            $.each(lections, function(k, lection) {
+                newSchedule[id][k] = new Lection(lection);
+            })
         });
         this.schedule = newSchedule;
-
-        if (this.today()===false) {
+        this.keys = $.parseJSON(localStorage.getItem('keys'));
+        //todo uncomment
+        /*if (this.today()===false) {
             $('.b-toolbar__link_name_today').removeClass('b-toolbar__link_name_today').addClass('b-link-disabled')
-        }
-        this.buildSchedule(schedule);
+        }*/
+        this.buildSchedule();
     } else {
         $('.b-schedule').html('<div class="b-day"><h1 class="b-hello-header">Добро пожаловать :-)</h1><p class="b-hello-text">Загляните в справку или загрузите ваше расписание.</p></div>');
     }
@@ -849,22 +872,40 @@ $(function () {
         .on('click', '.b-new-lesson__quit', function() {
             Interface.closeDialog();
             return false;
+        })
+        .on('click', '.b-new-lesson__save', function() {
+            var arr = new Array();
+            if(Shri.isValid($('.b-new-lesson'))){
+                alert('ok')
+                /*$('.b-edit-lesson').each(function (k, form) {
+                    var dataModel = Shri.reserialize($(form).serializeObject(),day);
+                    arr.push(dataModel);
+
+                });
+                arr.sort(Shri.sortByTime);
+                Shri.saveDay(day, arr);*/
+            }else{
+                console.log('ne ok');
+            }
         });
 
     $datepickerToggle
         .on('click', '.ui-state-default', function () {
-            $this = $(this);
-            var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
-            var id = Shri.getDayByDate(date);
-            if (id)
-                Interface.showDay(id);
-            return false;
+            
         })
         .on('click', '.b-datepicker-toggle__nav-button', function () {
             Interface.datepickerToggle(200);
         })
 
-    $('.ui-state-default').live('click', function () {alert()});
+    
+    $('.ui-state-default').on('click', function () {
+        $this = $(this);
+        var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
+        var id = Shri.getDayByDate(date);
+        if (id)
+            Interface.showDay(id);
+        return false;
+    });
     //TODO on
     $('.b-link-disabled').click(function () {
         alert();
