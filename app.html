@@ -86,8 +86,11 @@
 			{{#lections}}
 				<form class="b-edit-lesson" data-day="{{date}}">
 				<img class="b-edit-lesson__delete" alt="удалить" src="assets/img/delete.png">
-	            <input type="hidden" name="date" value="{{date}}">
 		            <table class="i-edit-lesson">
+		            	<tr>
+			            	<td>Дата</td>
+			            	<td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="date" value="{{date}}"></td>
+			            </tr>
 			            <tr>
 			            	<td>Время</td>
 			            	<td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="{{time}}"></td>

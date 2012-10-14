@@ -106,9 +106,7 @@ Shri.prototype.isValid = function (forms) {
     var isValid = true;
     var alerted = false;
     $(forms).each(function(id,form){
-        console.log(form);
          var obj = $(form).serializeObject();
-         console.log(obj);
          if(alerted)
             return;
          if(!date.test(obj.date)) {
@@ -132,7 +130,6 @@ Shri.prototype.isValid = function (forms) {
             }
             if(alerted)
                 return;
-            console.log($.trim(this));
             if(this==''){
                 alerted = true;
                 alert('Не все поля заполнены');
@@ -166,7 +163,6 @@ Shri.prototype.deleteEmptyKey = function (oldKey) {
     var keys = this.keys;
     if(!this.schedule[oldKey])
         $(keys).each(function(index, key) {
-            console.log(key);
             if(key == oldKey){
                 keys.splice(index, 1);
                 return;
@@ -303,7 +299,6 @@ Shri.prototype.import = function (text) {
 *@param {string} date
 */
 Shri.prototype.newDay = function(lection, date) {
-    console.log(lection, date);
     var keys = this.keys;
     var schedule = this.schedule;
     if (keys.indexOf(date) == -1) {
@@ -318,13 +313,12 @@ Shri.prototype.newDay = function(lection, date) {
 
         schedule[date].push(lection);
         schedule[date].sort(Shri.sortByTime);
-        console.log(schedule,schedule[date]);
     }
 
     this.schedule = schedule;
     this.keys = keys;
     localStorage.setItem('lections', JSON.stringify(schedule));
-    localStorage.setItem('keys', JSON.stringify(keysArray));
+    localStorage.setItem('keys', JSON.stringify(keys));
     this.buildSchedule();
 };
 /**
@@ -339,7 +333,6 @@ Shri.prototype.importJson = function (schedule) {
         obj = $.map(day, function (lection){
             return new Lection(lection);
         });
-        console.log(day);
         var date = day[0].date;
         keysArray[dayId] = date
         newSchedule[date]=obj;
@@ -415,7 +408,6 @@ Shri.prototype.getDayByDate = function (date) {
 *@return {boolean} smth changed or not
 */
 Shri.prototype.changeLectionDay = function (oldDayId, oldLectionId, date) {
-console.log(arguments);
     var schedule = this.schedule;
     var keys = this.keys;
     var lection = schedule[oldDayId][oldLectionId]
@@ -448,8 +440,6 @@ console.log(arguments);
 *@param {object} form obj
 */
 Shri.prototype.reserialize = function (obj) {
-    console.log('asd');
-    console.log(obj);
     obj.lector = new Object();
     obj.lector.name = obj['lector.name'];
     obj.lector.links = obj['lector.links'];
@@ -469,7 +459,12 @@ Shri.prototype.reserialize = function (obj) {
 *@param {array} day arr
 */
 Shri.prototype.saveDay = function (id, arr) {
-    this.schedule[id] = arr;
+    if(arr.length==0){
+        delete this.schedule[id];
+        this.deleteEmptyKey(id);
+    }else{
+        this.schedule[id] = arr;
+    }
     localStorage.setItem('lections', JSON.stringify(this.schedule));
     Shri.buildSchedule();
 }
@@ -693,7 +688,6 @@ Interface.prototype.droppableDatepicker = function () {
         });
         $('.ui-state-default').on('click', function () {
             $this = $(this);
-            console.log(this);
             var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
             var id = Shri.getDayByDate(date);
             if (id)
@@ -744,9 +738,17 @@ $(function () {
             return false;
         })
         .on('click', '.b-day__delete', function() {
-            var id = $(this).parent().data('day');
-            if(confirm('Точно удалить все лекции '+ id + '?'))
-                Shri.deleteDay(id);
+            $parent = $(this).parent();
+            var id = $parent.data('day');
+            //if(confirm('Точно удалить все лекции за '+ id + '?'))
+            $(this).parent().css('position','relative').animate(
+                                        {
+                                            left:$(window).width()+$(this).width()
+                                        },
+                                        200, 
+                                        function() {
+                                            Shri.deleteDay(id);
+                                        });
             return false;
         });
     $toolbar
@@ -812,15 +814,25 @@ $(function () {
        .on('click', '.b-save-day', function () {
             var arr = new Array();
             var id = $(this).data('id');
-            
-            if(Shri.isValid($('.b-edit-lesson'))){
-                $('.b-edit-lesson').each(function (k, form) {
-                    var dataModel = Shri.reserialize($(form).serializeObject(),id);
-                    arr.push(dataModel);
-
+            var $forms = $('.b-edit-lesson');
+            var oldDate = $forms.data('day');
+            var newDateArr = new Array();
+            if(Shri.isValid($forms)){
+                $forms.each(function (k, form) {
+                    console.log();
+                    newDate = $(form).serializeObject().date
+                    if(newDate != oldDate){
+                        Shri.newDay(Shri.reserialize($(form).serializeObject()), newDate);
+                        
+                        //Shri.changeLectionDay(oldDate, lectionId, newDate)
+                    }else{
+                        var dataModel = Shri.reserialize($(form).serializeObject());
+                        arr.push(dataModel);
+                    }
                 });
                 arr.sort(Shri.sortByTime);
                 Shri.saveDay(id, arr);
+
             }
          })
         .on('click', '.b-dialog-win__close-btn' , function () {
