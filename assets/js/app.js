@@ -3,6 +3,21 @@
 *
 *@return {object} serialized form object
 */
+$.fn.serializeObject = function () {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function () {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+}
 // TODO reserealize add
 /**
 *generates short url from full url
@@ -62,23 +77,12 @@ function getDateOfTextTime(text) {
 *@this {Lection}
 */
 function Lection (obj) {
-    this.date = obj.date;
     this.theme = obj.theme;
     this.link = obj.link;
     this.time = obj.time;
     this.lector = obj.lector;
     this.idea = obj.idea;
-    //TODO change day when moved
-    
 }
-/**
-*returns current lection' day
-*
-*@return {array} day
-*/
-Lection.prototype.Day = function() {
-    return Shri.schedule[this.day];
-};
 /**
  * Works with data
  *
@@ -101,6 +105,7 @@ Shri.prototype.isValid = function (forms) {
     var specialChars = /##|\?:/;
     var isValid = true;
     $(forms).each(function(id,form){
+        console.log(form);
          var obj = $(form).serializeObject();
          if(!date.test(obj.date)) {
             isValid = false;
@@ -143,29 +148,46 @@ Shri.prototype.sortByTime = function (a, b) {
     return a.valueOf() - b.valueOf();
 }
 /**
+*Deletes key of lections of it's empty
+*
+*@param {string} key
+*/
+Shri.prototype.deleteEmptyKey = function (oldKey) {
+    var keys = this.keys;
+    if(!this.schedule[oldKey])
+        $(keys).each(function(index, key) {
+            console.log(key);
+            if(key == oldKey){
+                keys.splice(index, 1);
+                return;
+            }
+        });
+    this.keys = keys;
+    localStorage.setItem('keys',JSON.stringify(keys));
+}
+/**
 *Adds lection to day
 *
 *@param {object} lection
 *@param {integer} day id
 */
-Shri.prototype.addLectionToDay = function (lection, day) {
-    var lecTime = parseInt(lection.time.replace(':', ''));
+Shri.prototype.addLectionToDay = function (lection, dayId) {
     var schedule = this.schedule;
-    var dayArr = schedule[day];
-    lection.date = schedule[day][0].date;
+    var dayArr = schedule[dayId];
     dayArr.push(lection);
-    var newArr = dayArr.sort(this.sortByTime);
-    this.schedule[day] = newArr;
-    localStorage.setItem('Shri', JSON.stringify(this.schedule));
+    dayArr.sort(this.sortByTime);
+    this.schedule[dayId] = dayArr;
+    localStorage.setItem('lections', JSON.stringify(this.schedule));
 }
 /**
 *deletes day
 *
 *@param {integer} day id
 */
+//no need
 Shri.prototype.deleteDay = function (id) {
     this.schedule.split(id, this.schedule);
-    localStorage.setItem('Shri', JSON.stringify(this.schedule));
+    localStorage.setItem('lection', JSON.stringify(this.schedule));
 };
 /**
 *deletes lection by id of lection and day
@@ -173,15 +195,16 @@ Shri.prototype.deleteDay = function (id) {
 *@param {integer} day id
 *@param {integer} lection id
 */
-Shri.prototype.deleteLectionFromDay = function (day, lection) {
-    console.log(this.schedule[day]);
-    var dayArr = this.schedule[day];
+Shri.prototype.deleteLectionFromDay = function (dayId, lection) {
+    var dayArr = this.schedule[dayId];
     if (dayArr.length == 1) {
-        this.schedule.splice(day, 1);
+        delete this.schedule[dayId];
+        //delete key
+        this.deleteEmptyKey(dayId);
     } else {
-        this.schedule[day].splice(lection, 1);
+        this.schedule[dayId].splice(lection, 1);
     }
-    localStorage.setItem('Shri', JSON.stringify(this.schedule));
+    localStorage.setItem('lections', JSON.stringify(this.schedule));
     //TODO localstorage
     //TODO func localStorage.setItem('shri', JSON.stringify(this.schedule));
 }
@@ -283,9 +306,10 @@ Shri.prototype.importJson = function (schedule) {
     var keysArray = new Array();
     $(schedule).each(function (dayId,day) {
         obj = $.map(day, function (lection){
-            return new Lection(lection, dayId);
+            return new Lection(lection);
         });
-        var date = obj[0].date;
+        console.log(day);
+        var date = day[0].date;
         keysArray[dayId] = date
         newSchedule[date]=obj;
     });
@@ -317,9 +341,13 @@ Shri.prototype.buildSchedule = function () {
         accept:".b-lesson__time",
         activeClass:"b-droppable",
         drop:function (event, ui) {
-            var date = $(this).find('.b-day__date').html();
-            if (date != Shri.schedule[$(ui.draggable).data('day')][0].date) {
-                if (Shri.changeLectionDay($(ui.draggable).data('day'), $(ui.draggable).data('lection'), date)) {
+            var newDate = $(this).data('day');
+            var $day  = $(ui.draggable.parents('.b-day '));
+            var oldDate = $day.data('day');
+            if (newDate != oldDate) {
+                var lectionId = $day.find('.b-lesson').index(ui.draggable.parents('.b-lesson'));
+                
+                if (Shri.changeLectionDay(oldDate, lectionId, newDate)) {
                     Shri.buildSchedule();
                 }
             } else {
@@ -352,38 +380,33 @@ Shri.prototype.getDayByDate = function (date) {
 */
 //TODO dayId lectionId
 Shri.prototype.changeLectionDay = function (oldDayId, oldLectionId, date) {
-
+console.log(arguments);
     var schedule = this.schedule;
+    var keys = this.keys;
+    var lection = schedule[oldDayId][oldLectionId]
     //если переносят в тот же день
-    if (schedule[oldDayId][oldLectionId].date == date)
+    if (oldDayId == date)
         return false;
     //ищем существующий день
-    var found = false;
-    $(schedule).each(function (dayId, day) {
-        $(day).each(function (lectionId, lection) {
-            if(!found){
-                if (lection.date == date) {
-                    Shri.addLectionToDay(schedule[oldDayId][oldLectionId], dayId);
-                    Shri.deleteLectionFromDay(oldDayId, oldLectionId);
-                    found = true;
-                    return;
-                }
-            }
-        });
-    });
-    if(found)
-        return found;
+    if(schedule[date]){   
+        Shri.addLectionToDay(lection, date);
+        Shri.deleteLectionFromDay(oldDayId, oldLectionId);
+        return true;
+    }
     //не нашли
-    this.schedule.push([schedule[oldDayId][oldLectionId]]);
-    this.schedule[this.schedule.length - 1][0].date = date;
+    this.schedule[date] = [lection];
+    this.keys.push(date);
+    /*this.schedule.push([schedule[oldDayId][oldLectionId]]);
+    this.schedule[this.schedule.length - 1][0].date = date;*/
     this.deleteLectionFromDay(oldDayId, oldLectionId);
-    this.schedule.sort(function (a, b) {
-        a = getDateOfTextDate(a[0].date);
-        b = getDateOfTextDate(b[0].date);
-
+    this.keys.sort(function (a, b) {
+        a = getDateOfTextDate(a);
+        b = getDateOfTextDate(b);
         return parseInt(a.valueOf()) - parseInt(b.valueOf());
     });
-    localStorage.setItem('Shri', JSON.stringify(this.schedule));
+    this.schedule[date].sort(this.sortByTime);
+    localStorage.setItem('lections', JSON.stringify(this.schedule));
+    localStorage.setItem('keys', JSON.stringify(this.keys));
     return true;
 };
 /**
@@ -402,7 +425,7 @@ Shri.prototype.reserialize = function (obj, day) {
         obj.idea = new Array(obj.idea);
     delete obj['lector.links'];
     delete obj['lector.name'];
-    obj = new Lection(obj, day);
+    obj = new Lection(obj);
     return obj;
 }
 /**
@@ -414,7 +437,7 @@ Shri.prototype.reserialize = function (obj, day) {
 Shri.prototype.saveDay = function (id, arr) {
     if (arr.length > 0) {
         this.schedule[id] = arr;
-        localStorage.setItem('Shri', JSON.stringify(this.schedule));
+        localStorage.setItem('lections', JSON.stringify(this.schedule));
     } else {
         this.deleteDay(id);
     }
@@ -524,7 +547,9 @@ Interface.prototype.closeDialog = function () {
     $('body').css('overflow', 'auto');
     $('.b-bg-shadow').hide();
     $('.b-dialog-win').hide();
+    //TODO flag?
     this.dialogVisible = false;
+
 }
 /**
 *generates form for adding new lection
@@ -542,7 +567,7 @@ Interface.prototype.newLesson = function () {
 */
 Interface.prototype.editDay = function (id) {
     var day = Shri.schedule[id];
-    var html = Mustache.render($('.b-templates__template_name_lection-edit').html(), {lections: day});
+    var html = Mustache.render($('.b-templates__template_name_lection-edit').html(), {lections: day, date:id});
     //TODO rename date to id where neccesery
     var footer = Mustache.render($('.b-templates__template_name_lection-edit-footer').html(), {id: id});
     this.openDialog(id, html, footer);
@@ -616,14 +641,19 @@ Interface.prototype.droppableDatepicker = function () {
             accept:".b-lesson__time",
             activeClass:"b-droppable",
             drop:function (event, ui) {
-                var month = $(this).parent().data('month') + 1;
+                var $this = $(this);
+                var $uiDraggable = $(ui.draggable);
+                var month = $this.parent().data('month') + 1;
                 if (month < 10)
                     month = '0' + month;
-                var date = $(this).html() + '.' + month + '.' + $(this).parent().data('year');
-                if (Shri.changeLectionDay($(ui.draggable).data('day'), $(ui.draggable).data('lection'), date)) {
+                var newDate = $this.html() + '.' + month + '.' + $this.parent().data('year');
+                var $day = $uiDraggable.parents('.b-day');
+                var oldDate = $day.data('day');
+                var lectionId = $day.find('.b-lesson').index($uiDraggable.parents('.b-lesson'));
+                if (Shri.changeLectionDay(oldDate, lectionId, newDate)) {
                     Shri.buildSchedule();
                 } else {
-                    $(ui.draggable).css('left', 'auto').css('top', 'auto');
+                    $uiDraggable.css('left', 'auto').css('top', 'auto');
                 }
             }
         });
@@ -727,18 +757,19 @@ $(function () {
         Interface.editDay(id);
         return false;
        })
+       //TODO rename lesson to lection
        .on('click', '.b-save-day', function () {
             var arr = new Array();
-            var day = $(this).data('id');
-
+            var id = $(this).data('id');
+            
             if(Shri.isValid($('.b-edit-lesson'))){
                 $('.b-edit-lesson').each(function (k, form) {
-                    var dataModel = Shri.reserialize($(form).serializeObject(),day);
+                    var dataModel = Shri.reserialize($(form).serializeObject(),id);
                     arr.push(dataModel);
 
                 });
                 arr.sort(Shri.sortByTime);
-                Shri.saveDay(day, arr);
+                Shri.saveDay(id, arr);
             }
          })
         .on('click', '.b-dialog-win__close-btn' , function () {

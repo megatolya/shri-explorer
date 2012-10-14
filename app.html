@@ -24,6 +24,7 @@
 	<a class="b-toolbar__link b-toolbar__link_name_manual" href="#">Справка</a>
 	<a class="b-toolbar__link" onclick="localStorage.setItem('lections','');localStorage.setItem('keys','')" href="#">Очистить локал</a>
 </div>
+
 <div class="b-bg-shadow"></div>
 <div class="b-dialog-win">
 	<img class="b-dialog-win__close-btn"  src="assets/img/close_icon.png"> 
@@ -94,7 +95,7 @@
 			            	<td colspan="3">Тема</td>
 			            </tr>
 			            <tr>
-			            	<td colspan="3"><input class="b-edit-lesson__input" name="theme" value=""></td>
+			            	<td colspan="3"><input class="b-edit-lesson__input" name="theme" value="{{theme}}"></td>
 			            </tr>
 			            <tr>
 			            	<td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td>
@@ -185,8 +186,8 @@
 			<p>Здесь будет справка</p>
 		</script>
 		<script type="text/html" class="b-templates__template_name_import">
-			 <p>Вставьте содержимое файла .shri и нажмите импорт.</p>'+
-            '<textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>
+			 <p>Вставьте содержимое файла .shri и нажмите импорт.</p>
+            <textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>
 		</script>
 		<script type="text/html" class="b-templates__template_name_add-idea">
 			<tr>
