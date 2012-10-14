@@ -181,6 +181,21 @@ a:active{
     zoom: 1;
     *display: inline;
 }
+.b-lesson__idea-header{
+    display: none;
+}
+.b-lesson__lector_links-header{
+    display: none;
+}
+.b-lesson__lector_link{
+    display: none;
+}
+.b-lesson__idea{
+    display: none;
+}
+.b-lesson__link{
+    display: none;
+}
 .b-toolbar{
     position: fixed;
     bottom: 0;
@@ -232,7 +247,12 @@ border:none;
 cursor: pointer;
 -moz-opacity:0.50; 
 filter:alpha(opacity=50); 
-opacity:0.50
+opacity:0.50;
+-webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
 }
 .b-dialog-win__close-btn:hover{
     -moz-opacity:0.90; 
@@ -250,9 +270,9 @@ overflow-y: auto;
     font-style: italic;
     margin: 10px 0;
 }
-.b-dialog-win__nav_target_edit {
-margin-left: 189px;
-
+.b-dialog-win__footer{
+    padding: 10px 0 0 0;
+    border-top: 1px solid #ddd;
 }
 .b-button{
 display: inline-block;

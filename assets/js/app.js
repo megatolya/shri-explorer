@@ -30,16 +30,6 @@ function shortUrl(url) {
     url = url.replace('http://', '').replace('https://', '').replace('ftp://', '').replace('//', '').replace('#', '/').replace('?', '/').split('/');
     return url[0];
 }
-
-/**
-*returns today date 
-*
-*@return {date} today
-*/
-function Today() {
-    var today = new Date();
-    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
-}
 /**
 * returns date of text dd.mm.yyyy
 *
@@ -211,7 +201,8 @@ Shri.prototype.deleteLectionFromDay = function (dayId, lectionId) {
 */
 Shri.prototype.today = function () {
     //today.getFullYear(), today.getMonth(), today.getDate());
-    var today = Today();
+    var today = new Date();
+    today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     today = today.getDate()+'.'+(today.getMonth()+1<10 ? '0'+today.getMonth()+1:today.getMonth()+1)+'.'+today.getFullYear();
     var schedule = this.schedule;
     if (this.keys.indexOf(today)+1)
@@ -588,7 +579,7 @@ Interface.prototype.newLesson = function () {
     var html = Mustache.render($('.b-templates__template_name_new-lection').html());
     var footer = Mustache.render($('.b-templates__template_name_new-lection-footer').html());
     this.openDialog('Новая лекция', html, footer);
-    $('.b-new-lesson__input_name_date').datepicker();
+    $('.b-new-lesson__input_name_date').datepicker().datepicker("option", "dateFormat",'d.mm.yy');
 }
 /**
 *generates form for editting day
@@ -601,7 +592,7 @@ Interface.prototype.editDay = function (id) {
     //TODO rename date to id where neccesery
     var footer = Mustache.render($('.b-templates__template_name_lection-edit-footer').html(), {id: id});
     this.openDialog(id, html, footer);
-    $('.b-edit-lesson__input_name_date').datepicker();
+    $('.b-edit-lesson__input_name_date').datepicker().datepicker("option", "dateFormat",'d.mm.yy');;
 }
 /**
 *shows day by id
@@ -747,7 +738,7 @@ $(function () {
                                         {
                                             left:$(window).width()+$(this).width()
                                         },
-                                        200, 
+                                        500, 
                                         function() {
                                             Shri.deleteDay(id);
                                         });
@@ -760,11 +751,6 @@ $(function () {
             $('.b-export-textarea').val(Shri.export()).select();
             return false;
         })
-        .on('click', '.b-toolbar__link_name_manual', function () {
-            var html = Mustache.render($('.b-templates__template_name_help').html());
-            Interface.openDialog('Справочная', html);
-            return false;
-           })
        .on('click', '.b-toolbar__link_name_import', function() {
         var html = Mustache.render($('.b-templates__template_name_import').html());
         Interface.openDialog('Импорт', html);
@@ -821,12 +807,14 @@ $(function () {
             var newDateArr = new Array();
             if(Shri.isValid($forms)){
                 $forms.each(function (k, form) {
-                    console.log();
                     newDate = $(form).serializeObject().date
                     if(newDate != oldDate){
                         Shri.newDay(Shri.reserialize($(form).serializeObject()), newDate);
-                        
-                        //Shri.changeLectionDay(oldDate, lectionId, newDate)
+                        $(form).slideUp(200, function() {
+                            $(this).remove();
+                            if($('.b-edit-lesson').length == 0)
+                                Interface.closeDialog();
+                        });
                     }else{
                         var dataModel = Shri.reserialize($(form).serializeObject());
                         arr.push(dataModel);
@@ -893,8 +881,8 @@ $(function () {
                 var obj = $forms.serializeObject()
                 var lection = Shri.reserialize(obj);
                 Shri.newDay(lection, obj.date);
+                Interface.closeDialog();
             }
-            Interface.closeDialog();
             return false;
         })
         .on('click', '.b-edit-lesson__delete', function() {
@@ -920,17 +908,6 @@ $(function () {
     $('.b-bg-shadow').click(function () {
         Interface.closeDialog();
         return false;
-    });
-
-    //TODO do smth lol
-    shortcut.add("Ctrl+left", function () {
-        if (Interface.dialogVisible)
-            $('.b-dialog-win__nav_target_prev').click();
-    });
-
-    shortcut.add("Ctrl+right", function () {
-        if (Interface.dialogVisible)
-            $('.b-dialog-win__nav_target_next').click();
     });
 });
 $(window).resize(function () {
