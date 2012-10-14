@@ -1,29 +1,28 @@
-@page {margin:0.5in;}
 .b-header__title{
-    font-family: sans-serif;
-    text-align: center;
-    font-weight: normal;
+  font-family: sans-serif;
+  text-align: center;
+  font-weight: normal;
 }
 .b-lesson__lector_links-header{
-    display: block ;
-    margin: 10px 0 0 0;
+  display: block ;
+  margin: 10px 0 0 0;
 
 }
 .b-lesson{
-    margin: 10px 0;
+  margin: 10px 0;
 }
 .b-lesson__lector_link{
-    display: block ;
+  display: block ;
 }
 .b-lesson__idea{
-    display: block ;
+  display: block ;
 }
 .b-lesson__link{
-    display: block ;
+  display: block ;
 }
 .b-lesson__time{
-    font-style: italic;
-    font-size: 20px;
+  font-style: italic;
+  font-size: 20px;
 }
 .b-lesson__link,
 .b-bg-shadow,
@@ -32,14 +31,14 @@
 .b-datepicker-toggle,
 .b-toolbar,
 .b-day__edit{
-    display: none;
+  display: none;
 }
 .b-day__date{
-    font-size: 20px;
-    text-align: center;
+  font-size: 20px;
+  text-align: center;
 }
 .b-day{
-    padding-bottom:10px; 
-    margin: 10px auto;
-    border-bottom: 1px solid black !important;
+  padding-bottom:10px; 
+  margin: 10px auto;
+  border-bottom: 1px solid black;
 }

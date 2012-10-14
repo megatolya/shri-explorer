@@ -1,4 +1,8 @@
 /**
+* Shri Explorer created by Anatoly Ostrovsky 
+*/
+
+/**
 *serializes form to object
 *
 *@return {object} serialized form object
@@ -17,19 +21,25 @@ $.fn.serializeObject = function () {
         }
     });
     return o;
-}
-// TODO reserealize add
+};
+
 /**
 *generates short url from full url
 *
 *@param {string} url
-*@param {string} short url
+*@return {string} short url
 */
-//TODO: регулярка
 function shortUrl(url) {
-    url = url.replace('http://', '').replace('https://', '').replace('ftp://', '').replace('//', '').replace('#', '/').replace('?', '/').split('/');
+    url = url.replace('http://', '')
+             .replace('https://', '')
+             .replace('ftp://', '')
+             .replace('//', '')
+             .replace('#', '/')
+             .replace('?', '/')
+             .split('/');
     return url[0];
-}
+};
+
 /**
 * returns date of text dd.mm.yyyy
 *
@@ -37,7 +47,6 @@ function shortUrl(url) {
 *@return {date} date
 */
 function getDateOfTextDate(text) {
-    //15.09.2012
     text = $.trim(text);
     var arr = text.split('.');
     var year = parseInt(arr[2]);
@@ -47,7 +56,8 @@ function getDateOfTextDate(text) {
         var month = parseInt(arr[1][1]);
     var day = parseInt(arr[0]);
     return new Date(year, month - 1, day);
-}
+};
+
 /**
 * returns date of text hh:mm
 *
@@ -55,11 +65,10 @@ function getDateOfTextDate(text) {
 *@return {date} date
 */
 function getDateOfTextTime(text) {
-    //13:00
     text = $.trim(text);
     var arr = text.split(':');
     return new Date(0, 0, 0, arr[0], arr[1]);
-}
+};
 
 /**
 *lection's class
@@ -72,7 +81,8 @@ function Lection (obj) {
     this.time = obj.time;
     this.lector = obj.lector;
     this.idea = obj.idea;
-}
+};
+
 /**
  * Works with data
  *
@@ -81,20 +91,20 @@ function Lection (obj) {
 function Shri () {
     this.version = 'beta';
     this.schedule = undefined;
-}
+};
+
 /**
 *checks validation of forms
 *
 *@param {string} selector of form(s)
 *@return {boolean} valid or not
 */
-//TODO больше проверок :-)
 Shri.prototype.isValid = function (forms) {
-    var time = /^[0-9]{0,2}[0-9]{1,2}:[0-9]{2}$/;
-    var date = /^[0-9]{1,2}.[0-9]{1,2}.20[0-9]{2}$/;
-    var specialChars = /##|\?:/;
-    var isValid = true;
-    var alerted = false;
+    var time = /^[0-9]{0,2}[0-9]{1,2}:[0-9]{2}$/,
+        date = /^[0-9]{1,2}.[0-9]{1,2}.20[0-9]{2}$/,
+        specialChars = /##|\?:/,
+        isValid = true,
+        alerted = false;
     $(forms).each(function(id,form){
          var obj = $(form).serializeObject();
          if(alerted)
@@ -131,7 +141,8 @@ Shri.prototype.isValid = function (forms) {
 
     });
     return isValid;
-}
+};
+
 /**
 *Sort array by time
 *
@@ -143,9 +154,10 @@ Shri.prototype.sortByTime = function (a, b) {
     a = getDateOfTextTime(a.time);
     b = getDateOfTextTime(b.time);
     return a.valueOf() - b.valueOf();
-}
+};
+
 /**
-*Deletes key of lections of it's empty
+*Deletes key of lections if it's empty
 *
 *@param {string} key
 */
@@ -153,14 +165,15 @@ Shri.prototype.deleteEmptyKey = function (oldKey) {
     var keys = this.keys;
     if(!this.schedule[oldKey])
         $(keys).each(function(index, key) {
-            if(key == oldKey){
+            if(key == oldKey) {
                 keys.splice(index, 1);
                 return;
             }
         });
     this.keys = keys;
     localStorage.setItem('keys',JSON.stringify(keys));
-}
+};
+
 /**
 *Adds lection to day
 *
@@ -168,13 +181,14 @@ Shri.prototype.deleteEmptyKey = function (oldKey) {
 *@param {integer} day id
 */
 Shri.prototype.addLectionToDay = function (lection, dayId) {
-    var schedule = this.schedule;
-    var dayArr = schedule[dayId];
+    var schedule = this.schedule,
+        dayArr = schedule[dayId];
     dayArr.push(lection);
     dayArr.sort(this.sortByTime);
     this.schedule[dayId] = dayArr;
     localStorage.setItem('lections', JSON.stringify(this.schedule));
-}
+};
+
 /**
 *deletes lection by id of lection and day
 *
@@ -191,45 +205,44 @@ Shri.prototype.deleteLectionFromDay = function (dayId, lectionId) {
         this.schedule[dayId].splice(lectionId, 1);
     }
     localStorage.setItem('lections', JSON.stringify(this.schedule));
-    //TODO localstorage
-    //TODO func localStorage.setItem('shri', JSON.stringify(this.schedule));
-}
+};
+
 /**
 *returns number of today day if exists or false
 *
 *@return {integer} id of day
 */
-Shri.prototype.today = function () {
-    //today.getFullYear(), today.getMonth(), today.getDate());
+Shri.prototype.today = function() {
     var today = new Date();
     today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    today = today.getDate()+'.'+(today.getMonth()+1<10 ? '0'+today.getMonth()+1:today.getMonth()+1)+'.'+today.getFullYear();
-    var schedule = this.schedule;
+    today = today.getDate() + '.' +
+            (today.getMonth() + 1 < 10 ? '0' + today.getMonth()+1:today.getMonth()+1) +
+            '.'+today.getFullYear();
     if (this.keys.indexOf(today)+1)
         return today;
     else
         return false;
-}
+};
+
 /**
 *imports text with shri format to app data
 *
 *@param {string} text with shri format
 */
 Shri.prototype.import = function (text) {
-    var arr = text.split('##');
-    var countDays = 0;
-    var schedule = new Array();
+    var arr = text.split('##'),
+        countDays = 0,
+        schedule = new Array();
     $(arr).each(function (dayId, day) {
         schedule[dayId] = new Array();
-        var strings = day.split('\n');
-        var countStr = 0;
-        var countLection = 0;
-        var countIdea = 0;
+        var strings = day.split('\n'),
+            countStr = 0,
+            countLection = 0,
+            countIdea = 0;
         schedule[dayId][countLection] = new Object();
         $(strings).each(function (line, string) {
             var currentStr = $.trim(string);
             if (currentStr != '') {
-                //TODO Switch
                 //date
                 if (countStr == 0) {
                     schedule[dayId][countLection].date = currentStr;
@@ -246,8 +259,8 @@ Shri.prototype.import = function (text) {
                 //lector
                 if (countStr == 3) {
                     schedule[dayId][countLection].lector = new Object();
-                    var split = currentStr.split('(');
-                    var linksStr = split[1];
+                    var split = currentStr.split('('),
+                        linksStr = split[1];
                     linksStr = $.trim(linksStr.replace(')', '').replace(' ', ''));
                     schedule[dayId][countLection].lector.name = $.trim(split[0]);
                     schedule[dayId][countLection].lector.links = linksStr.split(',');
@@ -279,10 +292,9 @@ Shri.prototype.import = function (text) {
         if (schedule[dayId][countLection].time == undefined)
             schedule[dayId].splice(countLection, 1)
     });
-    
     this.importJson(schedule);
-    
-}
+};
+
 /**
 *creates new day
 *
@@ -290,8 +302,8 @@ Shri.prototype.import = function (text) {
 *@param {string} date
 */
 Shri.prototype.newDay = function(lection, date) {
-    var keys = this.keys;
-    var schedule = this.schedule;
+    var keys = this.keys,
+        schedule = this.schedule;
     if (keys.indexOf(date) == -1) {
         keys.push(date);
         keys.sort(function(a, b) {
@@ -300,57 +312,53 @@ Shri.prototype.newDay = function(lection, date) {
             return parseInt(a.valueOf()) - parseInt(b.valueOf());
         });
         schedule[date] = [lection];
-    }else {
-
+    } else {
         schedule[date].push(lection);
         schedule[date].sort(Shri.sortByTime);
     }
-
     this.schedule = schedule;
     this.keys = keys;
     localStorage.setItem('lections', JSON.stringify(schedule));
     localStorage.setItem('keys', JSON.stringify(keys));
     this.buildSchedule();
 };
+
 /**
 *set to localstorage structured schedule
 *
 *@param {array} schedule
 */
 Shri.prototype.importJson = function (schedule) {
-    var newSchedule = new Object();
-    var keysArray = new Array();
+    var newSchedule = new Object(),
+        keysArray = new Array();
     $(schedule).each(function (dayId,day) {
         obj = $.map(day, function (lection){
             return new Lection(lection);
         });
         var date = day[0].date;
         keysArray[dayId] = date
-        newSchedule[date]=obj;
+        newSchedule[date] = obj;
     });
     this.schedule = newSchedule;
     this.keys = keysArray;
     localStorage.setItem('lections', JSON.stringify(newSchedule));
     localStorage.setItem('keys', JSON.stringify(keysArray));
-}
-//TODO поменять все парентс на data-id, data-id поменять на data-day
+};
+
 /**
 *builds html of lections from app's data
 */
 Shri.prototype.buildSchedule = function () {
-    var schedule = this.schedule;
-    var keys = this.keys;
-    
-    var html = new String();
+    var schedule = this.schedule,
+        keys = this.keys,
+        html = new String();
     $(keys).each(function(index, key) {
         html +=Mustache.render($('.b-templates__template_name_lection').html(), {lections: schedule[key], date: key});
     });
-    
     $('.b-schedule').html(html);
     $('.b-lesson__time').draggable({
         revert:"invalid"
     });
-
     $('.b-day').droppable({
         accept:".b-lesson__time",
         activeClass:"b-droppable",
@@ -359,8 +367,8 @@ Shri.prototype.buildSchedule = function () {
             var $day  = $(ui.draggable.parents('.b-day '));
             var oldDate = $day.data('day');
             if (newDate != oldDate) {
-                var lectionId = $day.find('.b-lesson').index(ui.draggable.parents('.b-lesson'));
-                
+                var lectionId = $day.find('.b-lesson')
+                                    .index(ui.draggable.parents('.b-lesson'));
                 if (Shri.changeLectionDay(oldDate, lectionId, newDate)) {
                     Shri.buildSchedule();
                 }
@@ -370,26 +378,33 @@ Shri.prototype.buildSchedule = function () {
         }
     });
     if (!this.today()) {
-            $('.i-today').removeClass('i-today_state_on').addClass('i-today_state_off').addClass('b-link-disabled');
+            $('.i-today')
+                .removeClass('i-today_state_on')
+                .addClass('i-today_state_off')
+                .addClass('b-link-disabled');
 
-    }else{
-        $('.i-today').addClass('i-today_state_on').removeClass('i-today_state_off').removeClass('b-link-disabled');
+    } else {
+        $('.i-today')
+            .addClass('i-today_state_on')
+            .removeClass('i-today_state_off')
+            .removeClass('b-link-disabled');
     }
-}
+};
+
 /**
 *returns day id or false if not exist
-//todo map
+*
 *@param {string} date
 *@return {integer} id of day or false
 */
 Shri.prototype.getDayByDate = function (date) {
-
     if (this.keys.indexOf(date) != -1) {
         return date;
-    }else {
+    } else {
         return false;
     }
-}
+};
+
 /**
 *changes day of lection
 *
@@ -425,6 +440,7 @@ Shri.prototype.changeLectionDay = function (oldDayId, oldLectionId, date) {
     localStorage.setItem('keys', JSON.stringify(this.keys));
     return true;
 };
+
 /**
 *generates lection data model from form object
 *
@@ -442,7 +458,8 @@ Shri.prototype.reserialize = function (obj) {
     delete obj['lector.name'];
     obj = new Lection(obj);
     return obj;
-}
+};
+
 /**
 *adds to schedule editted day
 *
@@ -453,12 +470,13 @@ Shri.prototype.saveDay = function (id, arr) {
     if(arr.length==0){
         delete this.schedule[id];
         this.deleteEmptyKey(id);
-    }else{
+    } else {
         this.schedule[id] = arr;
     }
     localStorage.setItem('lections', JSON.stringify(this.schedule));
     Shri.buildSchedule();
-}
+};
+
 /**
 *initialize localstorage and calls Shri.today method
 */
@@ -475,29 +493,34 @@ Shri.prototype.ini = function () {
         });
         this.schedule = newSchedule;
         this.keys = $.parseJSON(localStorage.getItem('keys'));
-        //todo uncomment
         this.buildSchedule();
     } else {
-        //TODO refactor such things
         $('.b-schedule').html(Mustache.render($('.b-templates__template_name_hello-world').html()));
     }
 
 };
+
+/**
+*Deletes day
+*
+*@param {string} id of day
+*/
 Shri.prototype.deleteDay = function(id) {
     delete this.schedule[id];
     this.deleteEmptyKey(id);
     localStorage.setItem('lections', JSON.stringify(this.schedule));
     this.buildSchedule();
-}
+};
+
 /**
 *takes app's schedule and make shri format from it
 *
 *@return {string} shri formatted text
-*/        
+*/
 Shri.prototype.export = function () {
-    var schedule = this.schedule;
-    var keys = this.keys;
-    var res = new String();
+    var schedule = this.schedule,
+        keys = this.keys,
+        res = new String();
     $(keys).each(function(index, key) {
         $(schedule[key]).each(function(id, lection) {
             res += key + '\n';
@@ -522,6 +545,7 @@ Shri.prototype.export = function () {
     });
     return res;
 };
+
 Shri = new Shri();
 
 /**
@@ -530,10 +554,10 @@ Shri = new Shri();
 *@this {Interface}
 */
 function Interface() {
-    this.dialogVisible = false;
     this.datepickerOpened = false;
     this.datepickerOpenedByDrag = false;
-}
+};
+
 /**
 *puts html to dialog html and shows it
 *
@@ -542,24 +566,25 @@ function Interface() {
 *@param {string} footer html
 */
 Interface.prototype.openDialog = function (header, html, footer) {
-    this.dialogVisible = true;
     $('.b-dialog-win__content').html(html);
     $('.b-dialog-win__header').html(header);
     $('.b-dialog-win__footer').html((footer == undefined ? '' : footer));
     $('.b-bg-shadow').show();
     $('.b-dialog-win').show();
     $('body').css('overflow', 'hidden');
-}
+};
+
 /**
 *controls position of dialog window
 */
 Interface.prototype.dialogPos = function () {
-    var winWidth = $(window).width();
-    var winHeight = $(window).height();
-    var dialogWidth = $('.b-dialog-win').width();
+    var winWidth = $(window).width(),
+        winHeight = $(window).height(),
+        dialogWidth = $('.b-dialog-win').width();
     $('.b-dialog-win').css('left', (winWidth - dialogWidth) / 2);
     $('.b-dialog-win__content').css('max-height', winHeight - 220 + 'px');
-}
+};
+
 /**
 *closes dialog window
 */
@@ -567,49 +592,51 @@ Interface.prototype.closeDialog = function () {
     $('body').css('overflow', 'auto');
     $('.b-bg-shadow').hide();
     $('.b-dialog-win').hide();
-    //TODO flag?
-    this.dialogVisible = false;
+};
 
-}
 /**
 *generates form for adding new lection
 *
 */
 Interface.prototype.newLesson = function () {
-    var html = Mustache.render($('.b-templates__template_name_new-lection').html());
-    var footer = Mustache.render($('.b-templates__template_name_new-lection-footer').html());
+    var html = Mustache.render($('.b-templates__template_name_new-lection').html()),
+        footer = Mustache.render($('.b-templates__template_name_new-lection-footer').html());
     this.openDialog('Новая лекция', html, footer);
     $('.b-new-lesson__input_name_date').datepicker().datepicker("option", "dateFormat",'d.mm.yy');
-}
+};
+
 /**
 *generates form for editting day
 *
 *@param {integer} id of day
 */
 Interface.prototype.editDay = function (id) {
-    var day = Shri.schedule[id];
-    var html = Mustache.render($('.b-templates__template_name_lection-edit').html(), {lections: day, date:id});
-    //TODO rename date to id where neccesery
-    var footer = Mustache.render($('.b-templates__template_name_lection-edit-footer').html(), {id: id});
+    var day = Shri.schedule[id],
+        html = Mustache.render($('.b-templates__template_name_lection-edit').html(), {lections: day, date:id}),
+        footer = Mustache.render($('.b-templates__template_name_lection-edit-footer').html(), {id: id});
     this.openDialog(id, html, footer);
-    $('.b-edit-lesson__input_name_date').datepicker().datepicker("option", "dateFormat",'d.mm.yy');;
-}
+    $('.b-edit-lesson__input_name_date')
+        .datepicker()
+        .datepicker("option", "dateFormat",'d.mm.yy');
+};
+
 /**
 *shows day by id
 *
 *@param {integer} id of day
 */
 Interface.prototype.showDay = function (id) {
-    var day = Shri.schedule[id];
-    var html = Mustache.render(
+    var day = Shri.schedule[id],
+        html = Mustache.render(
             $('.b-templates__template_name_full-lection').html(), 
             {lections: day, tinyurl:function() {
                 return shortUrl(this);
             }}
-        );
-    var footer = Mustache.render($('.b-templates__template_name_full-lection-footer').html(), {id: id});
+        ),
+        footer = Mustache.render($('.b-templates__template_name_full-lection-footer').html(), {id: id});
     Interface.openDialog(id, html, footer);
-}
+};
+
 /**
 *date picker toggle 
 *
@@ -623,7 +650,8 @@ Interface.prototype.datepickerToggle = function (time) {
     } else {
         this.datepickerOpen(time);
     }
-}
+};
+
 /**
 *closes datepicker
 *
@@ -638,7 +666,8 @@ Interface.prototype.datepickerClose = function (time) {
         $('.b-datepicker-toggle__nav-button').attr('src', 'assets/img/right_arrow.png');
         Interface.datepickerOpened = false;
     });
-}
+};
+
 /**
 *opens datepicker
 *
@@ -653,7 +682,8 @@ Interface.prototype.datepickerOpen = function (time) {
         $('.b-datepicker-toggle__nav-button').attr('src', 'assets/img/left_arrow.png');
         Interface.datepickerOpened = true;
     });
-}
+};
+
 /**
 *make datepicker droppable
 */
@@ -663,15 +693,15 @@ Interface.prototype.droppableDatepicker = function () {
             accept:".b-lesson__time",
             activeClass:"b-droppable",
             drop:function (event, ui) {
-                var $this = $(this);
-                var $uiDraggable = $(ui.draggable);
-                var month = $this.parent().data('month') + 1;
+                var $this = $(this),
+                    $uiDraggable = $(ui.draggable),
+                    month = $this.parent().data('month') + 1;
                 if (month < 10)
                     month = '0' + month;
-                var newDate = $this.html() + '.' + month + '.' + $this.parent().data('year');
-                var $day = $uiDraggable.parents('.b-day');
-                var oldDate = $day.data('day');
-                var lectionId = $day.find('.b-lesson').index($uiDraggable.parents('.b-lesson'));
+                var newDate = $this.html() + '.' + month + '.' + $this.parent().data('year'),
+                    $day = $uiDraggable.parents('.b-day');
+                    oldDate = $day.data('day'),
+                    lectionId = $day.find('.b-lesson').index($uiDraggable.parents('.b-lesson'));
                 if (Shri.changeLectionDay(oldDate, lectionId, newDate)) {
                     Shri.buildSchedule();
                 } else {
@@ -681,14 +711,20 @@ Interface.prototype.droppableDatepicker = function () {
         });
         $('.ui-state-default').on('click', function () {
             $this = $(this);
-            var date = $this.html() + '.' + ($this.parent().data('month') + 1) + '.' + $this.parent().data('year');
+            var date = $this.html() + '.' +
+                        (
+                            $this.parent().data('month') + 1 < 10 
+                            ? '0' + ($this.parent().data('month') + 1) 
+                            : $this.parent().data('month') + 1
+                        ) +
+                        '.' + $this.parent().data('year');
+            alert(date);
             var id = Shri.getDayByDate(date);
             if (id)
                 Interface.showDay(id);
             return false;
         });
     }, 100);
-
 };
 
 Interface = new Interface();
@@ -701,7 +737,6 @@ $(function () {
                 Interface.datepickerOpenedByDrag = false;
             }, 500);
     });
-
     $.datepicker.setDefaults($.datepicker.regional['ru']);
     $('.b-datepicker').datepicker({
         onChangeMonthYear:Interface.droppableDatepicker
@@ -709,11 +744,8 @@ $(function () {
     Interface.droppableDatepicker();
     Shri.ini();
     Interface.dialogPos();
-    var $schedule = $('.b-schedule');
-    var $toolbar = $('.b-toolbar');
-    var $dialogWin = $('.b-dialog-win');
-    var $datepickerToggle = $('.b-datepicker-toggle');
-    $schedule
+
+    $('.b-schedule')
         .on('mousedown', '.b-lesson__time',function(){
             if (Interface.datepickerOpened)
                 Interface.datepickerOpenedByDrag = false;
@@ -734,21 +766,24 @@ $(function () {
             $parent = $(this).parent();
             var id = $parent.data('day');
             //if(confirm('Точно удалить все лекции за '+ id + '?'))
-            $(this).parent().css('position','relative').animate(
-                                        {
-                                            left:$(window).width()+$(this).width()
-                                        },
-                                        500, 
-                                        function() {
-                                            Shri.deleteDay(id);
-                                        });
+            $(this).parent()
+                        .css('position','relative')
+                        .animate({
+                                left:$(window).width()+$(this).width()
+                            },
+                            500, 
+                            function() {
+                                Shri.deleteDay(id);
+                        });
             return false;
         });
-    $toolbar
+    $('.b-toolbar')
         .on('click', '.b-toolbar__link_name_export', function() {
             var html = Mustache.render($('.b-templates__template_name_export').html());
             Interface.openDialog('Экспорт', html);
-            $('.b-export-textarea').val(Shri.export()).select();
+            $('.b-export-textarea')
+                .val(Shri.export())
+                .select();
             return false;
         })
        .on('click', '.b-toolbar__link_name_import', function() {
@@ -766,7 +801,7 @@ $(function () {
             return false;
         });
 
-    $dialogWin
+    $('.b-dialog-win')
         .on('click', '.b-export-textarea', function() {
             $(this).select();
         })
@@ -798,7 +833,6 @@ $(function () {
         Interface.editDay(id);
         return false;
        })
-       //TODO rename lesson to lection
        .on('click', '.b-save-day', function () {
             var arr = new Array();
             var id = $(this).data('id');
@@ -815,7 +849,7 @@ $(function () {
                             if($('.b-edit-lesson').length == 0)
                                 Interface.closeDialog();
                         });
-                    }else{
+                    } else {
                         var dataModel = Shri.reserialize($(form).serializeObject());
                         arr.push(dataModel);
                     }
@@ -840,19 +874,23 @@ $(function () {
                 $this.parents('tr').remove();
         })
         .on('click', '.b-edit-lesson__add-idea', function () {
-            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-idea-edit').html()));
+            $(this).parents('tr')
+                        .after(Mustache.render($('.b-templates__template_name_add-idea-edit').html()));
             return false;
         })
-          .on('click', '.b-edit-lesson__add-link', function () {
-            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-link-edit').html()));
+        .on('click', '.b-edit-lesson__add-link', function () {
+            $(this).parents('tr')
+                       .after(Mustache.render($('.b-templates__template_name_add-link-edit').html()));
             return false;
         })
         .on('click', '.b-new-lesson__add-link', function () {
-            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-link-new').html()));
+            $(this).parents('tr')
+                       .after(Mustache.render($('.b-templates__template_name_add-link-new').html()));
             return false;
         })
         .on('click', '.b-new-lesson__add-idea', function () {
-            $(this).parents('tr').after(Mustache.render($('.b-templates__template_name_add-idea-new').html()));
+            $(this).parents('tr')
+                       .after(Mustache.render($('.b-templates__template_name_add-idea-new').html()));
             return false;
         })
         .on('click', '.b-new-lesson__delete-link', function () {
@@ -875,20 +913,20 @@ $(function () {
             return false;
         })
         .on('click', '.b-new-lesson__save', function() {
-            var arr = new Array();
-            var $forms = $('.b-new-lesson');
+            var arr = new Array(),
+                $forms = $('.b-new-lesson');
             if(Shri.isValid($forms)){
-                var obj = $forms.serializeObject()
-                var lection = Shri.reserialize(obj);
+                var obj = $forms.serializeObject(),
+                    lection = Shri.reserialize(obj);
                 Shri.newDay(lection, obj.date);
                 Interface.closeDialog();
             }
             return false;
         })
         .on('click', '.b-edit-lesson__delete', function() {
-            var $parent = $(this).parent();
-            var dayId = $parent.data('day');
-            var lectionId = $('.b-edit-lesson').index($parent);
+            var $parent = $(this).parent(),
+                dayId = $parent.data('day'),
+                lectionId = $('.b-edit-lesson').index($parent);
             Shri.deleteLectionFromDay(dayId, lectionId);
             Shri.buildSchedule();
             $parent.slideUp(200, function() {
@@ -896,23 +934,20 @@ $(function () {
                 if($('.b-edit-lesson').length == 0)
                     Interface.closeDialog();
             });
-            
-            
         });
 
-    $datepickerToggle
+    $('.b-datepicker-toggle')
         .on('click', '.b-datepicker-toggle__nav-button', function () {
             Interface.datepickerToggle(200);
         });
 
-    $('.b-bg-shadow').click(function () {
+    $('.b-bg-shadow').on('click', function () {
         Interface.closeDialog();
         return false;
     });
+
 });
+
 $(window).resize(function () {
     Interface.dialogPos();
 });
-/* TODO function today rename*/
-//todo today lagaet + dynamic
-// TODO input type=text

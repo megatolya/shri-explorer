@@ -1,244 +1,243 @@
 <!doctype html>
 <html>
-<head>
-<title>Школа разработки интерфейсов Яндекса</title>
-<meta charset="utf-8">
-<link rel="stylesheet" media="screen,projection" href="assets/css/main.css">
-<link rel="stylesheet" media="screen,projection" href="assets/css/jquery-ui-1.8.24.custom.css">
-</head>
-<body>
-<div class="b-header">
-	<h1 class="b-header__title">Школа Разработки Интерфейсов</h1>
-</div>
-<div class="b-schedule">
-	<div class="b-day">
-		<h1 class="b-hello-header">Ваш браузер не поддерживает localStorage, увы.</h1> 
-	</div>
-</div>
-<div class="b-toolbar">
-	<a class="b-toolbar__link i-today i-today_state_off b-link-disabled" href="#">Сегодня</a>
-	<a class="b-toolbar__link b-toolbar__link_name_new-lesson" href="#">Добавить лекцию</a>
-	<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
-	<a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
-</div>
+  <head>
+    <title>Школа разработки интерфейсов Яндекса</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" media="screen,projection" href="assets/css/main.css">
+    <link rel="stylesheet" media="screen,projection" href="assets/css/jquery-ui-1.8.24.custom.css">
+  </head>
+  <body>
+    <div class="b-header">
+      <h1 class="b-header__title">Школа Разработки Интерфейсов</h1>
+    </div>
+    <div class="b-schedule">
+      <div class="b-day">
+        <h1 class="b-hello-header">Ваш браузер не поддерживает localStorage, увы.</h1> 
+      </div>
+    </div>
+    <div class="b-toolbar">
+      <a class="b-toolbar__link i-today i-today_state_off b-link-disabled" href="#">Сегодня</a>
+      <a class="b-toolbar__link b-toolbar__link_name_new-lesson" href="#">Добавить лекцию</a>
+      <a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
+      <a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
+    </div>
 
-<div class="b-bg-shadow"></div>
-<div class="b-dialog-win">
-	<img class="b-dialog-win__close-btn"  src="assets/img/close_icon.png"> 
-	<h1 class="b-dialog-win__header"></h1>
-	<div class="b-dialog-win__content"></div>
-	<div class="b-dialog-win__footer"></div>
-</div>
-<div class="b-datepicker-toggle">
-	<div class="b-datepicker"></div>
-	<img class="b-datepicker-toggle__nav-button" src="assets/img/right_arrow.png">
-</div>
-	<div class="b-templates">
-		<script class="b-templates__template_name_hello-world" type="text/html">
-			<div class="b-day"><h1 class="b-hello-header">Добро пожаловать :-)</h1><p class="b-hello-text">Загляните в справку или загрузите ваше расписание.</p></div>
-		</script>
-		<script class="b-templates__template_name_lection" type="text/html">
-		<div class="b-day" data-day="{{date}}">
-		    <img class="b-day__delete" alt="удалить" src="assets/img/delete.png">
-		    <img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png">
-		    <div class="b-day__date">{{date}}</div>
-			{{#lections}}
-			<div class="b-lesson">
-				<div title="Перетащи меня! :-)" class="b-lesson__time">{{time}}</div>
-				<div class="b-lesson__name">{{theme}} - <i>{{lector.name}}</i></div>
+    <div class="b-bg-shadow"></div>
+    <div class="b-dialog-win">
+      <img class="b-dialog-win__close-btn"  src="assets/img/close_icon.png"> 
+      <h1 class="b-dialog-win__header"></h1>
+      <div class="b-dialog-win__content"></div>
+      <div class="b-dialog-win__footer"></div>
+    </div>
+    <div class="b-datepicker-toggle">
+      <div class="b-datepicker"></div>
+      <img class="b-datepicker-toggle__nav-button" src="assets/img/right_arrow.png">
+    </div>
+    <div class="b-templates">
+      <script class="b-templates__template_name_hello-world" type="text/html">
+        <div class="b-day"><h1 class="b-hello-header">Добро пожаловать :-)</h1><p class="b-hello-text">Загляните в справку или загрузите ваше расписание.</p></div>
+      </script>
+      <script class="b-templates__template_name_lection" type="text/html">
+      <div class="b-day" data-day="{{date}}">
+        <img class="b-day__delete" alt="удалить" src="assets/img/delete.png">
+        <img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png">
+        <div class="b-day__date">{{date}}</div>
+        {{#lections}}
+        <div class="b-lesson">
+          <div title="Перетащи меня! :-)" class="b-lesson__time">{{time}}</div>
+          <div class="b-lesson__name">{{theme}} - <i>{{lector.name}}</i></div>
 
-				<p class="b-lesson__lector_links-header">Ссылки на лектора:</p>
-				{{#lector.links}}
-					<a href="{{.}}" class="b-lesson__lector_link">{{.}}</a>
-				{{/lector.links}}
-				<p class="b-lesson__idea-header">Тезисы:</p>
-				{{#idea}}
-					<div class="b-lesson__idea">- {{.}}</div>
-				{{/idea}}
-				<p class="b-lesson__link">123<a href="{{link}}">{{link}}</a></p>
-			</div>
-			{{/lections}}
-			<a href="#" class="b-button b-lesson__link" data-id="{{date}}">Посмотреть</a></div>
-		</div>
-		</script>
-		<script type="text/html" class="b-templates__template_name_full-lection">
-			{{#lections}}
-				<div class="b-day-lesson">
-				<div class="b-day-lesson__time">{{time}}</div>
-				<h1 class="b-day-lesson__theme">{{theme}}</h1>
-				<div class="b-lector">Лектор: {{lector.name}} 
-				(
-					{{#lector.links}}
-					<a href="{{.}}" class="b-lector__link">{{tinyurl}}</a>
-					{{/lector.links}}
-				)
-				</div>
-				<div class="b-headnotes">
-				    <h4 class="b-headnotes__header">Тезисы:</h4>
-				    {{#idea}}
-				    	<div class="b-headnote">{{.}}</div>
-				    {{/idea}}
-				</div>
-				<a href="{{link}}" target="_blank" class="b-button b-day-lesson__keynote">Презентация</a></div>
-			{{/lections}}
-		</script>
-		<script type="text/html" class="b-templates__template_name_full-lection-footer">
-				<a class="b-dialog-win__nav_target_edit" href="{{id}}">Изменить</a>
-		</script>
-		<script type="text/html" class="b-templates__template_name_lection-edit">
-			{{#lections}}
-				<form class="b-edit-lesson" data-day="{{date}}">
-				<img class="b-edit-lesson__delete" alt="удалить" src="assets/img/delete.png">
-		            <table class="i-edit-lesson">
-		            	<tr>
-			            	<td>Дата</td>
-			            	<td><input class="b-edit-lesson__input b-edit-lesson__input_name_date" name="date" value="{{date}}"></td>
-			            </tr>
-			            <tr>
-			            	<td>Время</td>
-			            	<td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" value="{{time}}"></td>
-			            </tr>
-			            <tr>
-			            	<td colspan="3">Тема</td>
-			            </tr>
-			            <tr>
-			            	<td colspan="3"><input class="b-edit-lesson__input" name="theme" value="{{theme}}"></td>
-			            </tr>
-			            <tr>
-			            	<td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td>
-			            </tr>
-			            {{#idea}}
-			            	<tr>
-				            	<td colspan="2"><input class="b-edit-lesson__input" name="idea" value="{{.}}"></td>
-				            	<td><a href="#" class="b-edit-lesson__delete-idea">x</a></td>
-			            	</tr>
-			            {{/idea}}
-			            <tr>
-			            	<td colspan="3">Лектор</td>
-			            </tr>
-			            <tr>
-			            	<td colspan="3"><input class="b-edit-lesson__input" name="lector.name" value="{{lector.name}}"></td>
-			            </tr>
-			            <tr>
-			            	<td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td>
-			            </tr>
-			            {{#lector.links}}
-				            <tr>
-				                <td colspan="2"><input class="b-edit-lesson__input" name="lector.links" value="{{.}}"></td>
-				                <td><a href="#" class="b-edit-lesson__delete-link">x</a></td>
-				             </tr>
-			            {{/lector.links}}
-			            <tr>
-			            	<td colspan="3">Презентация</td>
-			            </tr>
-			            <tr>
-			            	<td colspan="3"><input class="b-edit-lesson__input" name="link" value="{{link}}"></td>
-			            </tr>
-		            </table>
-	            </form>
-	        {{/lections}}
-		</script>
-		<script type="text/html" class="b-templates__template_name_lection-edit-footer">
-			<a href="#" class="b-save-day" data-id="{{id}}">Сохранить</a>
-	        <a href="#" class="b-lesson__link" data-id={{id}}>Показать день</a>
-	        <a href="#" class="b-save-day-quit">Выйти</a>
-		</script>
-		<script type="text/html" class="b-templates__template_name_new-lection">
-			<form class="b-new-lesson">
-				<table>
-					<tr>
-						<td width="20%"></td><td width="70%"></td><td width="10%"></td>
-					</tr>
-					<tr>
-						<td>Дата</td><td colspan="2"><input name="date" type="text" class="b-new-lesson__input b-new-lesson__input_name_date"></td>
-					</tr>
-					<tr>
-						<td>Время</td><td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td>
-					</tr>
-					<tr>
-						<td>Тема</td><td colspan="2"><input name="theme" type="text" class="b-new-lesson__input"></td>
-					</tr>
-					<tr>
-						<td>Лектор</td><td colspan="2"><input type="text" class="b-new-lesson__input" name="lector.name"></td>
-					</tr>
-	    			<tr>
-	    				<td colspan="3">Ссылки на лектора <a href="#" class="b-new-lesson__add-link">+</a></td>
-	    			</tr>
-	    			<tr>
-	    				<td colspan="2"><input  type="text" class="b-new-lesson__input" name="lector.links"></td>
-	    				<td><a href="#" class="b-new-lesson__delete-link">x</a></td>
-	    			</tr>
-	    			<tr>
-	    				<td colspan="3">Тезисы <a href="#" class="b-new-lesson__add-idea">+</a></td>
-	    			</tr>
-	    			<tr>
-	    				<td colspan="2"><input  type="text" class="b-new-lesson__input" name="idea"></td>
-	    				<td><a href="#" class="b-new-lesson__delete-idea">x</a></td>
-	    			</tr>
-	    			<tr>
-	    				<td>Презентация</td>
-	    				<td colspan="2"><input name="link" type="text" class="b-new-lesson__input"></td>
-	    			</tr>
-	    		</table>
-    		</form>
-		</script>
-		<script type="text/html" class="b-templates__template_name_new-lection-footer">
-			<a href="#" class="b-new-lesson__save">Сохранить</a>
-            <a href="#" class="b-new-lesson__quit">Выйти</a>
-		</script>
-		<script type="text/html" class="b-templates__template_name_export">
-			<p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>
-		</script>
-		<script type="text/html" class="b-templates__template_name_import">
-			 <p>Вставьте содержимое файла .shri и нажмите импорт.</p>
-            <textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>
-		</script>
-		<script type="text/html" class="b-templates__template_name_add-idea-edit">
-			<tr>
-				<td colspan="2">
-					<input class="b-edit-lesson__input" name="idea">
-				</td>
-				<td>
-					<a href="#" class="b-edit-lesson__delete-idea">x</a>
-				</td>
-			</tr>
-		</script>
-		<script type="text/html" class="b-templates__template_name_add-link-edit">
-			<tr>
-				<td colspan="2">
-	                <input class="b-edit-lesson__input" name="lector.links">
-	            </td>
-	            <td>
-	                <a href="#" class="b-edit-lesson__delete-link">x</a>
-	            </td>
+          <p class="b-lesson__lector_links-header">Ссылки на лектора:</p>
+          {{#lector.links}}
+            <a href="{{.}}" class="b-lesson__lector_link">{{.}}</a>
+          {{/lector.links}}
+          <p class="b-lesson__idea-header">Тезисы:</p>
+          {{#idea}}
+            <div class="b-lesson__idea">- {{.}}</div>
+          {{/idea}}
+          <p class="b-lesson__link">123<a href="{{link}}">{{link}}</a></p>
+        </div>
+        {{/lections}}
+        <a href="#" class="b-button b-lesson__link" data-id="{{date}}">Посмотреть</a></div>
+      </div>
+      </script>
+      <script type="text/html" class="b-templates__template_name_full-lection">
+        {{#lections}}
+          <div class="b-day-lesson">
+          <div class="b-day-lesson__time">{{time}}</div>
+          <h1 class="b-day-lesson__theme">{{theme}}</h1>
+          <div class="b-lector">Лектор: {{lector.name}} 
+          (
+            {{#lector.links}}
+            <a href="{{.}}" class="b-lector__link">{{tinyurl}}</a>
+            {{/lector.links}}
+          )
+          </div>
+          <div class="b-headnotes">
+            <h4 class="b-headnotes__header">Тезисы:</h4>
+            {{#idea}}
+              <div class="b-headnote">{{.}}</div>
+            {{/idea}}
+          </div>
+          <a href="{{link}}" target="_blank" class="b-button b-day-lesson__keynote">Презентация</a></div>
+        {{/lections}}
+      </script>
+      <script type="text/html" class="b-templates__template_name_full-lection-footer">
+          <a class="b-dialog-win__nav_target_edit" href="{{id}}">Изменить</a>
+      </script>
+      <script type="text/html" class="b-templates__template_name_lection-edit">
+        {{#lections}}
+          <form class="b-edit-lesson" data-day="{{date}}">
+          <img class="b-edit-lesson__delete" alt="удалить" src="assets/img/delete.png">
+            <table class="i-edit-lesson">
+              <tr>
+                <td>Дата</td>
+                <td><input class="b-edit-lesson__input b-edit-lesson__input_name_date" name="date" type="text" value="{{date}}"></td>
+              </tr>
+              <tr>
+                <td>Время</td>
+                <td><input class="b-edit-lesson__input b-edit-lesson__input_name_time" name="time" type="text" value="{{time}}"></td>
+              </tr>
+              <tr>
+                <td colspan="3">Тема</td>
+              </tr>
+              <tr>
+                <td colspan="3"><input class="b-edit-lesson__input" name="theme" type="text" value="{{theme}}"></td>
+              </tr>
+              <tr>
+                <td colspan="3">Тезисы <a href="#" class="b-edit-lesson__add-idea">+</a></td>
+              </tr>
+              {{#idea}}
+                <tr>
+                  <td colspan="2"><input class="b-edit-lesson__input" type="text" name="idea" value="{{.}}"></td>
+                  <td><a href="#" class="b-edit-lesson__delete-idea">x</a></td>
+                </tr>
+              {{/idea}}
+              <tr>
+                <td colspan="3">Лектор</td>
+              </tr>
+              <tr>
+                <td colspan="3"><input class="b-edit-lesson__input" type="text" name="lector.name" value="{{lector.name}}"></td>
+              </tr>
+              <tr>
+                <td colspan="3">Ссылки на лектора <a href="#" class="b-edit-lesson__add-link">+</a></td>
+              </tr>
+              {{#lector.links}}
+                <tr>
+                  <td colspan="2"><input class="b-edit-lesson__input" type="text" name="lector.links" value="{{.}}"></td>
+                  <td><a href="#" class="b-edit-lesson__delete-link">x</a></td>
+                 </tr>
+              {{/lector.links}}
+              <tr>
+                <td colspan="3">Презентация</td>
+              </tr>
+              <tr>
+                <td colspan="3"><input class="b-edit-lesson__input" type="text" name="link" value="{{link}}"></td>
+              </tr>
+            </table>
+          </form>
+        {{/lections}}
+      </script>
+      <script type="text/html" class="b-templates__template_name_lection-edit-footer">
+        <a href="#" class="b-save-day" data-id="{{id}}">Сохранить</a>
+        <a href="#" class="b-lesson__link" data-id={{id}}>Показать день</a>
+        <a href="#" class="b-save-day-quit">Выйти</a>
+      </script>
+      <script type="text/html" class="b-templates__template_name_new-lection">
+        <form class="b-new-lesson">
+          <table>
+            <tr>
+              <td width="20%"></td><td width="70%"></td><td width="10%"></td>
             </tr>
-		</script>
-		<script type="text/html" class="b-templates__template_name_add-link-new">
-			<tr>
-				<td colspan="2">
-	                <input class="b-new-lesson__input" name="lector.links">
-	            </td>
-	            <td>
-	                <a href="#" class="b-new-lesson__delete-link">x</a>
-	            </td>
+            <tr>
+              <td>Дата</td><td colspan="2"><input name="date" type="text" class="b-new-lesson__input b-new-lesson__input_name_date"></td>
             </tr>
-		</script>
-		<script type="text/html" class="b-templates__template_name_add-idea-new">
-			<tr>
-				<td colspan="2">
-					<input class="b-edit-lesson__input" name="idea">
-				</td>
-				<td>
-					<a href="#" class="b-new-lesson__delete-idea">x</a>
-				</td>
-			</tr>
-		</script>
-	</div>
-</body>
-<link rel="stylesheet" media="print" href="assets/css/print.css">
-<script src="assets/js/jq.js"></script>
-<script src="assets/js/jq-ui.js"></script>
-<script src="assets/js/shortcut.js"></script>
-<script src="assets/js/mustache.js"></script>
-<script src="assets/js/app.js"></script>
+            <tr>
+              <td>Время</td><td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td>
+            </tr>
+            <tr>
+              <td>Тема</td><td colspan="2"><input name="theme" type="text" class="b-new-lesson__input"></td>
+            </tr>
+            <tr>
+              <td>Лектор</td><td colspan="2"><input type="text" class="b-new-lesson__input" name="lector.name"></td>
+            </tr>
+            <tr>
+              <td colspan="3">Ссылки на лектора <a href="#" class="b-new-lesson__add-link">+</a></td>
+            </tr>
+            <tr>
+              <td colspan="2"><input  type="text" class="b-new-lesson__input" name="lector.links"></td>
+              <td><a href="#" class="b-new-lesson__delete-link">x</a></td>
+            </tr>
+            <tr>
+              <td colspan="3">Тезисы <a href="#" class="b-new-lesson__add-idea">+</a></td>
+            </tr>
+            <tr>
+              <td colspan="2"><input  type="text" class="b-new-lesson__input" name="idea"></td>
+              <td><a href="#" class="b-new-lesson__delete-idea">x</a></td>
+            </tr>
+            <tr>
+              <td>Презентация</td>
+              <td colspan="2"><input name="link" type="text" class="b-new-lesson__input"></td>
+            </tr>
+          </table>
+        </form>
+      </script>
+      <script type="text/html" class="b-templates__template_name_new-lection-footer">
+        <a href="#" class="b-new-lesson__save">Сохранить</a>
+        <a href="#" class="b-new-lesson__quit">Выйти</a>
+      </script>
+      <script type="text/html" class="b-templates__template_name_export">
+        <p>Скопируйте содержимое формы в файл .shri. </p><textarea class="b-export-textarea"></textarea>
+      </script>
+      <script type="text/html" class="b-templates__template_name_import">
+         <p>Вставьте содержимое файла .shri и нажмите импорт.</p>
+        <textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>
+      </script>
+      <script type="text/html" class="b-templates__template_name_add-idea-edit">
+        <tr>
+          <td colspan="2">
+            <input class="b-edit-lesson__input" name="idea">
+          </td>
+          <td>
+            <a href="#" class="b-edit-lesson__delete-idea">x</a>
+          </td>
+        </tr>
+      </script>
+      <script type="text/html" class="b-templates__template_name_add-link-edit">
+        <tr>
+          <td colspan="2">
+            <input type="text" class="b-edit-lesson__input" name="lector.links">
+          </td>
+          <td>
+            <a href="#" class="b-edit-lesson__delete-link">x</a>
+          </td>
+        </tr>
+      </script>
+      <script type="text/html" class="b-templates__template_name_add-link-new">
+        <tr>
+          <td colspan="2">
+            <input type="text" class="b-new-lesson__input" name="lector.links">
+          </td>
+          <td>
+            <a href="#" class="b-new-lesson__delete-link">x</a>
+          </td>
+        </tr>
+      </script>
+      <script type="text/html" class="b-templates__template_name_add-idea-new">
+        <tr>
+          <td colspan="2">
+            <input type="text" class="b-edit-lesson__input" name="idea">
+          </td>
+          <td>
+            <a href="#" class="b-new-lesson__delete-idea">x</a>
+          </td>
+        </tr>
+      </script>
+    </div>
+  </body>
+  <link rel="stylesheet" media="print" href="assets/css/print.css">
+  <script src="assets/js/jq.js"></script>
+  <script src="assets/js/jq-ui.js"></script>
+  <script src="assets/js/mustache.js"></script>
+  <script src="assets/js/app.js"></script>
 </html>
