@@ -6,6 +6,7 @@
 body{
     background: url(../img/bg1.png) fixed;
     padding-bottom: 40px;
+    min-width: 920px;
 }
 button{
     -webkit-transition: All 0.3s ease;

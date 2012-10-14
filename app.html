@@ -17,12 +17,11 @@
 </div>
 <div class="b-toolbar">
 	//Версия для печати
-	<a class="b-toolbar__link b-toolbar__link_name_today" href="#">Сегодня</a>
+	<a class="b-toolbar__link i-today i-today_state_off b-link-disabled" href="#">Сегодня</a>
 	<a class="b-toolbar__link b-toolbar__link_name_new-lesson" href="#">Добавить лекцию</a>
 	<a class="b-toolbar__link b-toolbar__link_name_import" href="#">Импорт</a>
 	<a class="b-toolbar__link b-toolbar__link_name_export" href="#">Экспорт</a>
 	<a class="b-toolbar__link b-toolbar__link_name_manual" href="#">Справка</a>
-	<a class="b-toolbar__link" onclick="localStorage.setItem('lections','');localStorage.setItem('keys','')" href="#">Очистить локал</a>
 </div>
 
 <div class="b-bg-shadow"></div>
@@ -143,7 +142,7 @@
 						<td width="20%"></td><td width="70%"></td><td width="10%"></td>
 					</tr>
 					<tr>
-						<td>Дата</td><td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td>
+						<td>Дата</td><td colspan="2"><input name="date" type="text" class="b-new-lesson__input"></td>
 					</tr>
 					<tr>
 						<td>Время</td><td colspan="2"><input name="time" type="text" class="b-new-lesson__input"></td>
@@ -189,7 +188,7 @@
 			 <p>Вставьте содержимое файла .shri и нажмите импорт.</p>
             <textarea class="b-import-textarea"></textarea><button class="b-button b-import-btn">Импорт</button>
 		</script>
-		<script type="text/html" class="b-templates__template_name_add-idea">
+		<script type="text/html" class="b-templates__template_name_add-idea-edit">
 			<tr>
 				<td colspan="2">
 					<input class="b-edit-lesson__input" name="idea">
@@ -199,7 +198,7 @@
 				</td>
 			</tr>
 		</script>
-		<script type="text/html" class="b-templates__template_name_add-link">
+		<script type="text/html" class="b-templates__template_name_add-link-edit">
 			<tr>
 				<td colspan="2">
 	                <input class="b-edit-lesson__input" name="lector.links">
@@ -208,6 +207,26 @@
 	                <a href="#" class="b-edit-lesson__delete-link">x</a>
 	            </td>
             </tr>
+		</script>
+		<script type="text/html" class="b-templates__template_name_add-link-new">
+			<tr>
+				<td colspan="2">
+	                <input class="b-new-lesson__input" name="lector.links">
+	            </td>
+	            <td>
+	                <a href="#" class="b-new-lesson__delete-link">x</a>
+	            </td>
+            </tr>
+		</script>
+		<script type="text/html" class="b-templates__template_name_add-idea-new">
+			<tr>
+				<td colspan="2">
+					<input class="b-edit-lesson__input" name="idea">
+				</td>
+				<td>
+					<a href="#" class="b-new-lesson__delete-idea">x</a>
+				</td>
+			</tr>
 		</script>
 	</div>
 </body>
