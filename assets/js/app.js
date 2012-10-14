@@ -300,7 +300,11 @@ Shri.prototype.import = function (text) {
     
 }
 console.log( );
-//todo comment
+/**
+*set to localstorage structured schedule
+*
+*@param {array} schedule
+*/
 Shri.prototype.importJson = function (schedule) {
     var newSchedule = new Object();
     var keysArray = new Array();
@@ -378,7 +382,6 @@ Shri.prototype.getDayByDate = function (date) {
 *@param {string} new date
 *@return {boolean} smth changed or not
 */
-//TODO dayId lectionId
 Shri.prototype.changeLectionDay = function (oldDayId, oldLectionId, date) {
 console.log(arguments);
     var schedule = this.schedule;
@@ -477,18 +480,18 @@ Shri.prototype.ini = function () {
 */        
 Shri.prototype.export = function () {
     var schedule = this.schedule;
+    var keys = this.keys;
     var res = new String();
-    var days = schedule.length - 1;
-    $(schedule).each(function (dayId, day) {
-        $(day).each(function (lectionId, lection) {
-            res += lection.date + '\n';
+    $(keys).each(function(index, key) {
+        $(schedule[key]).each(function(id, lection) {
+            res += key + '\n';
             res += lection.time + '\n';
             res += lection.theme + '\n';
             res += lection.lector.name + ' (';
-            var lectorLinks = lection.lector.links.length - 1;
-            $(lection.lector.links).each(function (linkId, link) {
+            var lectorLinks = lection.lector.links;
+            $(lectorLinks).each(function (linkId, link) {
                 res += link
-                if (linkId != lectorLinks)
+                if (linkId != lectorLinks.length - 1)
                     res += ', ';
             });
             res += ')\n';
@@ -497,8 +500,9 @@ Shri.prototype.export = function () {
             });            ;
             res += lection.link;
         });
-        if (dayId != days)
+        if (index != keys.length-1)
             res += '\n##\n';
+        return res;
     });
     return res;
 };
@@ -729,6 +733,9 @@ $(function () {
         });
 
     $dialogWin
+        .on('click', '.b-export-textarea', function() {
+            $(this).select();
+        })
         .on('click', '.b-import-btn', function () {
             var text = $('.b-import-textarea').val();
             Shri.import(text);
