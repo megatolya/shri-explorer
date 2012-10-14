@@ -588,6 +588,7 @@ Interface.prototype.newLesson = function () {
     var html = Mustache.render($('.b-templates__template_name_new-lection').html());
     var footer = Mustache.render($('.b-templates__template_name_new-lection-footer').html());
     this.openDialog('Новая лекция', html, footer);
+    $('.b-new-lesson__input_name_date').datepicker();
 }
 /**
 *generates form for editting day
@@ -600,6 +601,7 @@ Interface.prototype.editDay = function (id) {
     //TODO rename date to id where neccesery
     var footer = Mustache.render($('.b-templates__template_name_lection-edit-footer').html(), {id: id});
     this.openDialog(id, html, footer);
+    $('.b-edit-lesson__input_name_date').datepicker();
 }
 /**
 *shows day by id
@@ -892,6 +894,7 @@ $(function () {
                 var lection = Shri.reserialize(obj);
                 Shri.newDay(lection, obj.date);
             }
+            Interface.closeDialog();
             return false;
         })
         .on('click', '.b-edit-lesson__delete', function() {
