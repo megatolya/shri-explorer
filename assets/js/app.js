@@ -89,7 +89,7 @@ function Lection (obj) {
  * @this {Shri}
  */
 function Shri () {
-    this.version = 'alpha';
+    this.version = 'beta';
     this.schedule = undefined;
 }
 /**
@@ -195,14 +195,14 @@ Shri.prototype.addLectionToDay = function (lection, dayId) {
 *@param {integer} day id
 *@param {integer} lection id
 */
-Shri.prototype.deleteLectionFromDay = function (dayId, lection) {
+Shri.prototype.deleteLectionFromDay = function (dayId, lectionId) {
     var dayArr = this.schedule[dayId];
     if (dayArr.length == 1) {
         delete this.schedule[dayId];
         //delete key
         this.deleteEmptyKey(dayId);
     } else {
-        this.schedule[dayId].splice(lection, 1);
+        this.schedule[dayId].splice(lectionId, 1);
     }
     localStorage.setItem('lections', JSON.stringify(this.schedule));
     //TODO localstorage
@@ -497,6 +497,12 @@ Shri.prototype.ini = function () {
     }
 
 };
+Shri.prototype.deleteDay = function(id) {
+    delete this.schedule[id];
+    this.deleteEmptyKey(id);
+    localStorage.setItem('lections', JSON.stringify(this.schedule));
+    this.buildSchedule();
+}
 /**
 *takes app's schedule and make shri format from it
 *
@@ -736,9 +742,13 @@ $(function () {
             var id = $(this).data('id');
             Interface.showDay(id);
             return false;
+        })
+        .on('click', '.b-day__delete', function() {
+            var id = $(this).parent().data('day');
+            if(confirm('Точно удалить все лекции '+ id + '?'))
+                Shri.deleteDay(id);
+            return false;
         });
-        
-   
     $toolbar
         .on('click', '.b-toolbar__link_name_export', function() {
             var html = Mustache.render($('.b-templates__template_name_export').html());
@@ -751,18 +761,17 @@ $(function () {
             Interface.openDialog('Справочная', html);
             return false;
            })
-           .on('click', '.b-toolbar__link_name_import', function() {
-            var html = Mustache.render($('.b-templates__template_name_import').html());
-            Interface.openDialog('Импорт', html);
-            return false;
-           })
-           .on('click', '.b-toolbar__link_name_new-lesson', function() {
-            //verni html suda
-               Interface.newLesson();
-               return false;
-           })
+       .on('click', '.b-toolbar__link_name_import', function() {
+        var html = Mustache.render($('.b-templates__template_name_import').html());
+        Interface.openDialog('Импорт', html);
+        return false;
+       })
+       .on('click', '.b-toolbar__link_name_new-lesson', function() {
+           Interface.newLesson();
+           return false;
+       })
         .on('click', '.i-today',function(){
-            if($(this).hasClass('.i-today_state_on'));
+            if($(this).hasClass('i-today_state_on'))
                 Interface.showDay(Shri.today());
             return false;
         });
@@ -872,15 +881,26 @@ $(function () {
                 Shri.newDay(lection, obj.date);
             }
             return false;
+        })
+        .on('click', '.b-edit-lesson__delete', function() {
+            var $parent = $(this).parent();
+            var dayId = $parent.data('day');
+            var lectionId = $('.b-edit-lesson').index($parent);
+            Shri.deleteLectionFromDay(dayId, lectionId);
+            Shri.buildSchedule();
+            $parent.slideUp(200, function() {
+                $(this).remove();
+                if($('.b-edit-lesson').length == 0)
+                    Interface.closeDialog();
+            });
+            
+            
         });
 
     $datepickerToggle
-        .on('click', '.ui-state-default', function () {
-            
-        })
         .on('click', '.b-datepicker-toggle__nav-button', function () {
             Interface.datepickerToggle(200);
-        })
+        });
 
     $('.b-bg-shadow').click(function () {
         Interface.closeDialog();

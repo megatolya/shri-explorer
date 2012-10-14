@@ -41,6 +41,7 @@
 		</script>
 		<script class="b-templates__template_name_lection" type="text/html">
 		<div class="b-day" data-day="{{date}}">
+		    <img class="b-day__delete" alt="удалить" src="assets/img/delete.png">
 		    <img class="b-day__edit" alt="редактировать" src="assets/img/pencil.png">
 		    <div class="b-day__date">{{date}}</div>
 			{{#lections}}
@@ -83,7 +84,8 @@
 		</script>
 		<script type="text/html" class="b-templates__template_name_lection-edit">
 			{{#lections}}
-				<form class="b-edit-lesson">
+				<form class="b-edit-lesson" data-day="{{date}}">
+				<img class="b-edit-lesson__delete" alt="удалить" src="assets/img/delete.png">
 	            <input type="hidden" name="date" value="{{date}}">
 		            <table class="i-edit-lesson">
 			            <tr>

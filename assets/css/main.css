@@ -113,6 +113,20 @@ a:active{
     opacity:0.20;
     position: absolute;
     top: 9px;
+    right: 50px;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
+}
+.b-day__delete{
+    cursor: pointer;
+    -moz-opacity:0.20; 
+    filter:alpha(opacity=20); 
+    opacity:0.20;
+    position: absolute;
+    top: 9px;
     right: 14px;
     -webkit-transition: All 0.3s ease;
     -moz-transition: All 0.3s ease;
@@ -121,6 +135,11 @@ a:active{
     transition: All 0.3s ease;
 }
 .b-day__edit:hover{
+    -moz-opacity:1; 
+    filter:alpha(opacity=100); 
+    opacity:1;
+}
+.b-day__delete:hover{
     -moz-opacity:1; 
     filter:alpha(opacity=100); 
     opacity:1;
@@ -327,12 +346,32 @@ margin: 10px;
     left: 390px;
 }
 .b-edit-lesson{
+    position: relative;
     border-bottom: 1px solid black;
     margin: 10px 0;
     padding: 10px 0;
 }
 .i-edit-lesson{
     width:98%;
+}
+.b-edit-lesson__delete{
+    cursor: pointer;
+    position: absolute;
+    right: 16px;
+    top: 0;
+    -moz-opacity:0.20; 
+    filter:alpha(opacity=20); 
+    opacity:0.20;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
+}
+.b-edit-lesson__delete:hover{
+    -moz-opacity:1; 
+    filter:alpha(opacity=100); 
+    opacity:1;
 }
 .b-edit-lesson__input{
     width: 98%;
