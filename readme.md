@@ -1,9 +1,3 @@
-#Shri Explorer
+#Shri Explorer public beta
 
-Использованные фреймворки
-* jQuery
-* jQuery UI
-* Mustache.js
-Основной файл /app.html
-Файл приложения /assets/js/app.js
-Файл библиотек /assets/js/libs.js
+Приложение: http://ostrovsky.github.com/shri-explorer/
