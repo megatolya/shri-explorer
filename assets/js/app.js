@@ -1372,7 +1372,6 @@ Interface.prototype.droppableDatepicker = function () {
                             : $this.parent().data('month') + 1
                         ) +
                         '.' + $this.parent().data('year');
-            alert(date);
             var id = Shri.getDayByDate(date);
             if (id)
                 Interface.showDay(id);
